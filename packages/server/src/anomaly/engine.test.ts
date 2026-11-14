@@ -220,7 +220,8 @@ describe('default domain rules', () => {
     const engine = engineWith(['eps.busCurrentAnomaly']);
     const noisy = (i: number) => frame({ busA: 1.5 + 0.05 * Math.sin(i) });
     let ts = 0;
-    for (let i = 0; i < 200; i++, ts += STEP_MS)
+    const warmUp = DEFAULT_RULES.find((r) => r.id === 'eps.busCurrentAnomaly')!.windowSize!;
+    for (let i = 0; i < warmUp; i++, ts += STEP_MS)
       expect(engine.evaluate(SAT, noisy(i), ts)).toEqual([]);
     const opened = feed(engine, frame({ busA: 6 }), 3, ts);
     expect(opened.transitions).toHaveLength(1);

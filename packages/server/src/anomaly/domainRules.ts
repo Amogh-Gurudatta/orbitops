@@ -99,7 +99,9 @@ export const DEFAULT_RULES: AlertRule[] = [
     metric: 'busA',
     op: '>',
     threshold: 4,
-    windowSize: 200,
+    // ~5 min at 5 Hz: long enough that routine payload-on periods (every ~90 s) are part of the baseline
+    // variance, so only genuinely unusual current draws alarm (ISA-18.2: avoid nuisance alarms).
+    windowSize: 1500,
     enabled: true,
   },
   {
