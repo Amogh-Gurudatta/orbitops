@@ -1,10 +1,7 @@
 // End-to-end test against a real MongoDB replica set: HTTP + Socket.IO on an ephemeral port, real msgpack
-// parser, a device client ingesting and subscribers receiving. MongoDB comes from TEST_MONGODB_URI (e.g. the
-// docker compose mongo) or an in-memory replica set (downloads a mongod binary on first use).
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { randomUUID } from 'node:crypto';
+// parser, a device client ingesting and subscribers receiving (harness: see testing/harness.ts).
+import { afterAll, beforeAll, describe, expect } from 'vitest';
 import mongoose from 'mongoose';
-import { io as connect, type Socket } from 'socket.io-client';
 import {
   ALERT,
   INGEST_BATCH,
@@ -14,123 +11,35 @@ import {
   SUB,
   TM_DELTA,
   TM_SNAPSHOT,
-  socketParser,
   type IngestAck,
   type TmDelta,
 } from '@orbitops/shared';
-import { loadConfig } from './config.js';
-import { createLogger } from './logger.js';
-import { startServer, type RunningServer } from './server.js';
+import { connected, createHarness, DEVICE_KEY, emitWithAck, sleep } from './testing/harness.js';
 import { event, frame } from './testing/factories.js';
 
-const DEVICE_KEY = 'integration-device-key';
 const SAT_A = 25544;
 const SAT_B = 48274;
 
-let stopMemoryServer: (() => Promise<void>) | undefined;
-let unavailableReason: string | undefined;
-let server: RunningServer | undefined;
-let baseUrl = '';
-const sockets: Socket[] = [];
+const harness = createHarness();
+const { open, login, integration } = harness;
+const baseUrl = () => harness.baseUrl;
 
-async function resolveMongoUri(): Promise<string> {
-  const dbName = `orbitops_it_${randomUUID().slice(0, 8)}`;
-  const external = process.env.TEST_MONGODB_URI;
-  if (external) {
-    const url = new URL(external);
-    url.pathname = `/${dbName}`;
-    return url.toString();
-  }
-  const { MongoMemoryReplSet } = await import('mongodb-memory-server');
-  const replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
-  stopMemoryServer = () => replSet.stop().then(() => undefined);
-  return replSet.getUri(dbName);
-}
-
-const wsOptions = (extra: object = {}) => ({
-  parser: socketParser,
-  transports: ['websocket'],
-  forceNew: true,
-  ...extra,
-});
-
-function open(namespace: string, extra: object = {}): Socket {
-  const socket = connect(`${baseUrl}${namespace}`, wsOptions(extra));
-  sockets.push(socket);
-  return socket;
-}
-
-const connected = (socket: Socket) =>
-  new Promise<void>((resolve, reject) => {
-    socket.once('connect', resolve);
-    socket.once('connect_error', reject);
-  });
-
-const emitWithAck = <T>(socket: Socket, name: string, payload: unknown): Promise<T> =>
-  socket.timeout(5000).emitWithAck(name, payload) as Promise<T>;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function login(email: string): Promise<string> {
-  const res = await fetch(`${baseUrl}/api/v1/auth/login`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email, password: 'orbitops' }),
-  });
-  expect(res.status).toBe(200);
-  return res.headers
-    .getSetCookie()
-    .map((c) => c.split(';')[0])
-    .join('; ');
-}
-
-beforeAll(async () => {
-  try {
-    const mongoUri = await resolveMongoUri();
-    const config = loadConfig({
-      NODE_ENV: 'test',
-      PORT: '0',
-      MONGODB_URI: mongoUri,
-      JWT_SECRET: 'integration-test-secret-0123456789abcdef',
-      DEVICE_API_KEY: DEVICE_KEY,
-      SEED_DEMO: 'true',
-      PERSIST_HZ: '10',
-    });
-    server = await startServer(config, createLogger(config));
-    baseUrl = `http://127.0.0.1:${server.port}`;
-  } catch (err) {
-    unavailableReason = `MongoDB unavailable (set TEST_MONGODB_URI or allow mongodb-memory-server to download mongod): ${String(err)}`;
-  }
-});
-
-afterAll(async () => {
-  for (const socket of sockets) socket.close();
-  if (server) {
-    await mongoose.connection.dropDatabase();
-    await server.stop();
-  }
-  await stopMemoryServer?.();
-});
-
-const integration = (name: string, fn: () => Promise<void>) =>
-  it(name, async (ctx) => {
-    if (unavailableReason) ctx.skip(unavailableReason);
-    await fn();
-  });
+beforeAll(() => harness.start());
+afterAll(() => harness.stop());
 
 describe('server integration', () => {
   integration('serves health, metrics and rejects bad credentials', async () => {
-    expect((await fetch(`${baseUrl}/healthz`)).status).toBe(200);
-    expect(await (await fetch(`${baseUrl}/metrics`)).text()).toContain(
+    expect((await fetch(`${baseUrl()}/healthz`)).status).toBe(200);
+    expect(await (await fetch(`${baseUrl()}/metrics`)).text()).toContain(
       'orbitops_ingest_accepted_total',
     );
-    const bad = await fetch(`${baseUrl}/api/v1/auth/login`, {
+    const bad = await fetch(`${baseUrl()}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email: 'viewer@orbitops.dev', password: 'nope' }),
     });
     expect(bad.status).toBe(401);
-    const invalid = await fetch(`${baseUrl}/api/v1/auth/login`, {
+    const invalid = await fetch(`${baseUrl()}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email: 'not-an-email' }),
@@ -140,16 +49,18 @@ describe('server integration', () => {
 
   integration('session lifecycle: me, refresh, socket-token, logout', async () => {
     const cookie = await login('operator@orbitops.dev');
-    const me = await fetch(`${baseUrl}/api/v1/auth/me`, { headers: { cookie } });
+    const me = await fetch(`${baseUrl()}/api/v1/auth/me`, { headers: { cookie } });
     expect(((await me.json()) as { user: unknown }).user).toMatchObject({
       email: 'operator@orbitops.dev',
       role: 'operator',
     });
-    expect((await fetch(`${baseUrl}/api/v1/auth/me`)).status).toBe(401);
-    const socketToken = await fetch(`${baseUrl}/api/v1/auth/socket-token`, { headers: { cookie } });
+    expect((await fetch(`${baseUrl()}/api/v1/auth/me`)).status).toBe(401);
+    const socketToken = await fetch(`${baseUrl()}/api/v1/auth/socket-token`, {
+      headers: { cookie },
+    });
     const { token } = (await socketToken.json()) as { token: unknown };
     expect(typeof token).toBe('string');
-    const logout = await fetch(`${baseUrl}/api/v1/auth/logout`, { method: 'POST' });
+    const logout = await fetch(`${baseUrl()}/api/v1/auth/logout`, { method: 'POST' });
     expect(logout.status).toBe(204);
   });
 

@@ -20,5 +20,6 @@ const commandSchema = new Schema<CommandDoc>({
   status: { type: String, enum: ['sent', 'no_device'], required: true, default: 'sent' },
 });
 commandSchema.index({ satId: 1, issuedAt: -1 });
+commandSchema.index({ issuedAt: -1 });
 
 export const CommandModel = model<CommandDoc>('Command', commandSchema);

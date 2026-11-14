@@ -23,6 +23,7 @@ export class SatelliteCatalog {
 
   get = (satId: number): CatalogEntry | undefined => this.entries.get(satId);
   groupOf = (satId: number): SatGroup | undefined => this.entries.get(satId)?.group;
+  all = (): CatalogEntry[] => [...this.entries.values()];
   has = (satId: number): boolean => this.entries.has(satId);
   get size(): number {
     return this.entries.size;

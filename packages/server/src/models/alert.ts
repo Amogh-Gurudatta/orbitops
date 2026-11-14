@@ -41,7 +41,9 @@ const alertSchema = new Schema<AlertDoc>({
   resolvedAt: Date,
   instanceId: String,
 });
-alertSchema.index({ state: 1, severity: 1 });
+// Serves GET /alerts: equality on state/severity, newest first.
+alertSchema.index({ state: 1, severity: 1, openedAt: -1 });
+alertSchema.index({ openedAt: -1 });
 alertSchema.index({ satId: 1, openedAt: -1 });
 alertSchema.index({ key: 1 });
 

@@ -7,6 +7,7 @@ export class HttpError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly details?: unknown,
   ) {
     super(message);
   }
@@ -27,7 +28,10 @@ export function errorHandler(log: Logger): ErrorRequestHandler {
       return;
     }
     if (err instanceof HttpError) {
-      res.status(err.status).json({ error: err.message });
+      res.status(err.status).json({
+        error: err.message,
+        ...(err.details === undefined ? {} : { details: err.details }),
+      });
       return;
     }
     // body-parser / http-errors carry a 4xx status for malformed or oversized bodies.

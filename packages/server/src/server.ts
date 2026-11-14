@@ -16,6 +16,7 @@ import type { ServerContext } from './context.js';
 import { connectDb, disconnectDb, ensureCollections, nativeDb, TELEMETRY } from './db/index.js';
 import { createDeviceRateLimiter } from './ingest/rateLimit.js';
 import { IngestPipeline } from './ingest/pipeline.js';
+import { createRollupJob } from './jobs/rollups.js';
 import type { Logger } from './logger.js';
 import { StatsCollector } from './metrics/collector.js';
 import { createPrometheusRegistry } from './metrics/prometheus.js';
@@ -159,6 +160,8 @@ export async function startServer(
   writer.start();
   broadcaster.start();
   alerts.startChangeStream();
+  const rollups = createRollupJob(log);
+  rollups.start(config.rawTtlHours);
   const pipelineTimer = setInterval(() => pipeline.tick(), 50);
   const secondTimer = setInterval(() => {
     alerts.handleTransitions(anomaly.checkStale(Date.now()));
@@ -178,6 +181,7 @@ export async function startServer(
       clearInterval(pipelineTimer);
       clearInterval(secondTimer);
       broadcaster.stop();
+      await rollups.stop();
       await io.close();
       httpServer.closeAllConnections();
       await writer.stop();
