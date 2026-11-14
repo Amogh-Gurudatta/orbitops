@@ -1,0 +1,48 @@
+{
+  "name": "@orbitops/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@deck.gl/core": "~9.4.1",
+    "@deck.gl/geo-layers": "~9.4.1",
+    "@deck.gl/layers": "~9.4.1",
+    "@deck.gl/react": "~9.4.1",
+    "@fontsource/b612": "^5.3.0",
+    "@fontsource/b612-mono": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "@orbitops/shared": "*",
+    "@tanstack/react-query": "^5.107.1",
+    "@tanstack/react-virtual": "^3.14.26",
+    "cmdk": "^1.1.1",
+    "comlink": "^4.4.2",
+    "echarts": "^6.1.0",
+    "h3-js": "^4.5.0",
+    "radix-ui": "^1.8.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-grid-layout": "^2.3.0",
+    "react-hotkeys-hook": "^5.4.0",
+    "react-router": "^8.5.1",
+    "satellite.js": "^7.2.0",
+    "socket.io-client": "^4.8.4",
+    "sonner": "^2.0.8",
+    "uplot": "^1.6.32",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
