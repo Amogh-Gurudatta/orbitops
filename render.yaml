@@ -1,4 +1,7 @@
-# Render Blueprint: the OrbitOps web service (API + Socket.IO + built SPA on one origin) and the simulator worker.
+# Render Blueprint: one free web service runs the API, Socket.IO, the built SPA (one origin) and,
+# via EMBED_SIMULATOR, the satellite simulator as a supervised child process (Render has no free workers).
+# To run the simulator elsewhere instead, set EMBED_SIMULATOR=false and start packages/simulator with
+# SERVER_URL pointing here and the same DEVICE_API_KEY.
 # Docs: https://render.com/docs/blueprint-spec
 services:
   - type: web
@@ -16,6 +19,13 @@ services:
         value: '1'
       - key: RAW_TTL_HOURS
         value: '6'
+      # Demo accounts (viewer/operator/admin @orbitops.dev) so judges can sign straight in.
+      - key: SEED_DEMO
+        value: 'true'
+      - key: EMBED_SIMULATOR
+        value: 'true'
+      - key: EMBED_SIMULATOR_HZ
+        value: '2'
       # Set in the Render dashboard: a mongodb+srv:// URI for an Atlas cluster with replica set support.
       - key: MONGODB_URI
         sync: false
@@ -27,21 +37,3 @@ services:
       # Public origin of this web service, e.g. https://orbitops-web.onrender.com.
       - key: CLIENT_ORIGIN
         sync: false
-
-  # Background worker for the telemetry simulator. Render does not offer a free plan for workers,
-  # so this costs money. Alternative: run the simulator inside the web service behind an env flag
-  # (this needs a server option that starts the simulator in-process; not implemented yet).
-  - type: worker
-    name: orbitops-simulator
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerCommand: node_modules/.bin/tsx packages/simulator/src/index.ts
-    plan: starter
-    envVars:
-      - key: SERVER_URL
-        sync: false
-      - key: DEVICE_API_KEY
-        fromService:
-          type: web
-          name: orbitops-web
-          envVarKey: DEVICE_API_KEY

@@ -17,6 +17,7 @@ import { connectDb, disconnectDb, ensureCollections, nativeDb, TELEMETRY } from 
 import { createDeviceRateLimiter } from './ingest/rateLimit.js';
 import { IngestPipeline } from './ingest/pipeline.js';
 import { createRollupJob } from './jobs/rollups.js';
+import { startEmbeddedSimulator } from './embeddedSimulator.js';
 import type { Logger } from './logger.js';
 import { StatsCollector } from './metrics/collector.js';
 import { createPrometheusRegistry } from './metrics/prometheus.js';
@@ -175,9 +176,23 @@ export async function startServer(
   const port = (httpServer.address() as AddressInfo).port;
   log.info({ port, instanceId }, 'OrbitOps server listening');
 
+  const simulator =
+    config.embedSimulator && config.deviceApiKey
+      ? startEmbeddedSimulator({
+          port,
+          deviceApiKey: config.deviceApiKey,
+          hz: config.embedSimulatorHz,
+          log,
+        })
+      : undefined;
+  if (config.embedSimulator && !config.deviceApiKey) {
+    log.warn('EMBED_SIMULATOR is set but DEVICE_API_KEY is missing; simulator not started');
+  }
+
   let stopping: Promise<void> | undefined;
   const stop = (): Promise<void> =>
     (stopping ??= (async () => {
+      await simulator?.stop();
       clearInterval(pipelineTimer);
       clearInterval(secondTimer);
       broadcaster.stop();

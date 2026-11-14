@@ -22,6 +22,8 @@ const Env = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DEVICE_EVENTS_PER_SEC: z.coerce.number().int().positive().default(3000),
   DEVICE_BURST_EVENTS: z.coerce.number().int().positive().default(6000),
+  EMBED_SIMULATOR: z.stringbool().default(false),
+  EMBED_SIMULATOR_HZ: z.coerce.number().int().min(1).max(10).default(2),
 });
 
 export interface Config {
@@ -40,6 +42,9 @@ export interface Config {
   logLevel: string;
   deviceEventsPerSec: number;
   deviceBurstEvents: number;
+  /** Run packages/simulator as a child process (single-service hosting). */
+  embedSimulator: boolean;
+  embedSimulatorHz: number;
   /** Non-fatal problems found while loading (logged by the caller once the logger exists). */
   warnings: string[];
 }
@@ -89,6 +94,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     logLevel: e.LOG_LEVEL,
     deviceEventsPerSec: e.DEVICE_EVENTS_PER_SEC,
     deviceBurstEvents: e.DEVICE_BURST_EVENTS,
+    embedSimulator: e.EMBED_SIMULATOR,
+    embedSimulatorHz: e.EMBED_SIMULATOR_HZ,
     warnings,
   };
 }
