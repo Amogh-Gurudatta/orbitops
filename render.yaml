@@ -20,6 +20,12 @@ services:
       - key: RAW_TTL_HOURS
         value: '6'
       # Demo accounts (viewer/operator/admin @orbitops.dev) so judges can sign straight in.
+      # Render terminates TLS in a proxy: trust one hop so rate limits key on the real client IP.
+      - key: TRUST_PROXY
+        value: '1'
+      # Keep rollups for a week to stay well inside Atlas M0's 512 MB.
+      - key: ROLLUP_TTL_DAYS
+        value: '7'
       - key: SEED_DEMO
         value: 'true'
       - key: EMBED_SIMULATOR

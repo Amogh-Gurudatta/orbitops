@@ -136,6 +136,8 @@ export class Spacecraft {
       : clamp(p.attBaseDps + noise(0.015), 0.01, 0.1);
     this.propKg = Math.max(0, this.propKg - PROP_BURN_KG_PER_S * dtS);
 
+    // A comms fault kills the carrier but not the geometry: the station is still in view (stationId and
+    // elevation stay populated) while RSSI/SNR drop out, which is exactly what the link-loss rule looks for.
     const comms = this.faults.has('comms') ? null : this.commsFor(link);
 
     return {
@@ -152,8 +154,8 @@ export class Spacecraft {
       obcTempC: this.obcTempC + noise(0.15),
       rssiDbm: comms?.rssiDbm ?? null,
       snrDb: comms?.snrDb ?? null,
-      stationId: comms ? link!.stationId : null,
-      elevDeg: comms ? clamp(link!.elevDeg, -90, 90) : null,
+      stationId: link?.stationId ?? null,
+      elevDeg: link ? clamp(link.elevDeg, -90, 90) : null,
       attRateDps,
       propKg: this.propKg,
       mode: this.mode(shadow),

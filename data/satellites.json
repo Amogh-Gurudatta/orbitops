@@ -1,7 +1,7 @@
 {
   "source": "CelesTrak GP data (TLE), retrieved via the tle.ivanstanojevic.me mirror",
   "retrievedAt": "2026-11-15",
-  "note": "Offline fallback snapshot. The simulator refreshes from CelesTrak at boot when reachable.",
+  "note": "Offline snapshot used by default. Set TLE_REFRESH=true on the simulator to fetch fresh TLEs from CelesTrak at boot (falls back to this file).",
   "satellites": [
     {
       "noradId": 25544,

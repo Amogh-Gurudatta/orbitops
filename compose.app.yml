@@ -5,6 +5,8 @@
 # Open http://localhost:4000 once the server is healthy.
 x-app-env: &app-env
   NODE_ENV: production
+  # Production defaults to no demo data; this local stack wants the demo accounts and satellite catalogue.
+  SEED_DEMO: 'true'
 
 services:
   server:

@@ -103,19 +103,15 @@ describe('SatelliteAgent', () => {
     expect(Math.max(...solar) / Math.max(1, Math.min(...solar))).toBeGreaterThan(1.5);
   });
 
-  it('a comms fault removes the link even when a station is in view', () => {
+  it('a comms fault drops the carrier while the station stays in view', () => {
     const agent = makeAgent(0);
     let t = 0;
     while (agent.sample(START + t * 1000)!.data.stationId === null) t += 30;
     agent.handleCommand({ satId: agent.noradId, kind: 'inject_fault', fault: 'comms' });
     const frame = agent.sample(START + (t + 1) * 1000)!.data;
-    expect(frame).toMatchObject({
-      stationId: null,
-      rssiDbm: null,
-      snrDb: null,
-      elevDeg: null,
-      mode: 'LOS',
-    });
+    expect(frame).toMatchObject({ rssiDbm: null, snrDb: null, mode: 'LOS' });
+    expect(frame.stationId).not.toBeNull();
+    expect(frame.elevDeg).not.toBeNull();
     agent.handleCommand({ satId: agent.noradId, kind: 'clear_fault', fault: 'comms' });
     expect(agent.sample(START + (t + 2) * 1000)!.data.mode).not.toBe('LOS');
   });

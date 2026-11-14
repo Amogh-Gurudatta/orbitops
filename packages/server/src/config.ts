@@ -16,6 +16,7 @@ const Env = z.object({
   DEVICE_API_KEY: z.string().min(8).optional(),
   PERSIST_HZ: z.coerce.number().positive().max(10).default(2),
   RAW_TTL_HOURS: z.coerce.number().positive().default(6),
+  ROLLUP_TTL_DAYS: z.coerce.number().positive().default(30),
   SERVE_WEB: z.stringbool().default(false),
   SEED_DEMO: z.stringbool().optional(),
   TRUST_PROXY: z.coerce.number().int().min(0).default(0),
@@ -36,6 +37,7 @@ export interface Config {
   deviceApiKey: string | undefined;
   persistHz: number;
   rawTtlHours: number;
+  rollupTtlDays: number;
   serveWeb: boolean;
   seedDemo: boolean;
   trustProxy: number;
@@ -88,6 +90,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     deviceApiKey,
     persistHz: e.PERSIST_HZ,
     rawTtlHours: e.RAW_TTL_HOURS,
+    rollupTtlDays: e.ROLLUP_TTL_DAYS,
     serveWeb: e.SERVE_WEB,
     seedDemo,
     trustProxy: e.TRUST_PROXY,

@@ -9,7 +9,7 @@ const log = createLogger(config);
 
 try {
   await connectDb(config.mongoUri);
-  await ensureCollections({ rawTtlHours: config.rawTtlHours });
+  await ensureCollections({ rawTtlHours: config.rawTtlHours, rollupTtlDays: config.rollupTtlDays });
   await seedAll({ deviceApiKey: config.deviceApiKey, log });
 } finally {
   await disconnectDb();

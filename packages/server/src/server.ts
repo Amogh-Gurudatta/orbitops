@@ -51,7 +51,7 @@ export async function startServer(
   options: StartOptions = {},
 ): Promise<RunningServer> {
   await connectDb(config.mongoUri);
-  await ensureCollections({ rawTtlHours: config.rawTtlHours });
+  await ensureCollections({ rawTtlHours: config.rawTtlHours, rollupTtlDays: config.rollupTtlDays });
   if (config.seedDemo) await bootstrapIfEmpty({ deviceApiKey: config.deviceApiKey, log });
 
   const catalog = new SatelliteCatalog();
