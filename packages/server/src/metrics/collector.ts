@@ -3,6 +3,9 @@
 import { monitorEventLoopDelay } from 'node:perf_hooks';
 import { RollingWindow } from './percentiles.js';
 
+/** Sampling interval of the event-loop delay histogram. */
+const LOOP_RESOLUTION_MS = 10;
+
 export const COUNTER_NAMES = [
   'accepted',
   'duplicates',
@@ -76,7 +79,7 @@ export class StatsCollector implements CounterSink {
   private readonly flushMs = new RollingWindow(256);
   private readonly latencyReports = new Map<string, { report: LatencyReport; at: number }>();
   private readonly loopDelay: ReturnType<typeof monitorEventLoopDelay> = monitorEventLoopDelay({
-    resolution: 20,
+    resolution: LOOP_RESOLUTION_MS,
   });
   private providers: StatsProviders = NO_PROVIDERS;
   private rates = { eventsPerSec: 0, msgsPerSec: 0, bytesPerSec: 0 };
@@ -142,11 +145,15 @@ export class StatsCollector implements CounterSink {
     this.loopDelay.disable();
   }
 
-  /** Event loop delay percentiles in ms since the last tick (the histogram is in ns). */
+  /**
+   * Event loop lag percentiles in ms since the last tick. The histogram records the full interval
+   * between its sampling timer firings (ns), so the sampling resolution is subtracted to get the lag.
+   */
   private eventLoop(): { p50Ms: number; p99Ms: number } {
     const h = this.loopDelay;
     if (h.count === 0) return { p50Ms: 0, p99Ms: 0 };
-    return { p50Ms: round(h.percentile(50) / 1e6, 2), p99Ms: round(h.percentile(99) / 1e6, 2) };
+    const lagMs = (p: number) => round(Math.max(0, h.percentile(p) / 1e6 - LOOP_RESOLUTION_MS), 2);
+    return { p50Ms: lagMs(50), p99Ms: lagMs(99) };
   }
 
   /** Sample-weighted mean of each client's percentiles; fresh reports only. */
