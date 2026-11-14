@@ -1,0 +1,20 @@
+{
+  "name": "orbitops",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OrbitOps — real-time satellite mission control telemetry platform (MERN + Socket.IO)",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=24" },
+  "workspaces": ["packages/shared", "packages/server", "packages/simulator", "packages/web", "tools/loadtest"],
+  "scripts": {
+    "dev": "concurrently -n server,sim,web -c gray,yellow,white \"npm run dev -w @orbitops/server\" \"npm run dev -w @orbitops/simulator\" \"npm run dev -w @orbitops/web\"",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "seed": "npm run seed -w @orbitops/server",
+    "db:up": "docker compose up -d mongo"
+  }
+}
