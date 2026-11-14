@@ -9,6 +9,10 @@ export const FLEET_FIELDS = [
   'batSoc',
   'mode',
   'shadow',
+  // The fleet table's power, thermal and link columns.
+  'solarW',
+  'panelTempC',
+  'stationId',
 ] as const satisfies readonly (keyof TelemetryFrame)[];
 const FLEET_KEYS: readonly string[] = FLEET_FIELDS.map((f) => FIELD_KEYS[f]);
 

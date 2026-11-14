@@ -166,7 +166,7 @@ export async function startServer(
   const pipelineTimer = setInterval(() => pipeline.tick(), 50);
   const secondTimer = setInterval(() => {
     alerts.handleTransitions(anomaly.checkStale(Date.now()));
-    telemetryNsp.volatile.to(SYSTEM_ROOM).emit(SERVER_STATS, stats.tick());
+    telemetryNsp.to(SYSTEM_ROOM).emit(SERVER_STATS, stats.tick());
   }, 1000);
 
   await new Promise<void>((resolve, reject) => {

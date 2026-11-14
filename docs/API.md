@@ -284,7 +284,7 @@ the batch; events stamped more than 5 s in the future or more than 1 h in the pa
 | `sub`   | client to server | `{ rooms: string[], hz?: number }` where `hz` is 1, 2, 5 or 10 | Ack: `{ ok: true, rooms }` (all rooms now joined) or `{ ok: false, error }`                                                          |
 | `unsub` | client to server | `{ rooms: string[] }`                                          | Same ack shape                                                                                                                       |
 | `snap`  | server to client | `TmSnapshot[]`                                                 | Sent after `sub` (and after a recovered connection) for the subscribed `fleet`, `group:*` and `sat:*` rooms; one entry per satellite |
-| `tm`    | server to client | `TmDelta[]`                                                    | Batched per tick, volatile (may be dropped)                                                                                          |
+| `tm`    | server to client | `TmDelta[]`                                                    | Batched per tick; slow clients are downgraded                                                                                        |
 | `stats` | server to client | `PipelineStats`                                                | To the `system` room once per second; also once immediately on subscribing                                                           |
 | `kick`  | server to client | `{ reason: "slow_consumer" }`                                  | Sent just before the server disconnects a client that stayed too slow                                                                |
 | `time`  | client to server | any value; ack receives the server's `Date.now()`              | For clock-offset estimation                                                                                                          |
@@ -312,15 +312,15 @@ carrying an `hz` wins. Without it the connection is served at 10 Hz.
 
 ### Rooms
 
-| Room                    | Namespace    | Content and rate                                                                                                                                          |
-| ----------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sat:<satId>`           | `/telemetry` | Every changed field of one satellite, every 100 ms tick (10 Hz), or merged and sent at the connection's `hz` of 1, 2 or 5                                 |
-| `group:<name>`          | `/telemetry` | All fields that changed for satellites in the group, merged, 2 Hz. Names: `stations`, `weather`, `comms`, `earth-obs`, `navigation`, `science`, `amateur` |
-| `fleet`                 | `/telemetry` | Position and status only (`lat`, `lon`, `altKm`, `batSoc`, `mode`, `shadow`) for all satellites, merged, 1 Hz                                             |
-| `system`                | `/telemetry` | `PipelineStats` once per second                                                                                                                           |
-| `alerts:all`            | `/alerts`    | Every alert event                                                                                                                                         |
-| `alerts:sev:<severity>` | `/alerts`    | Alert events of one severity (`WARNING`, `CAUTION` or `ADVISORY`)                                                                                         |
-| `alerts:sat:<satId>`    | `/alerts`    | Alert events of one satellite                                                                                                                             |
+| Room                    | Namespace    | Content and rate                                                                                                                                                   |
+| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sat:<satId>`           | `/telemetry` | Every changed field of one satellite, every 100 ms tick (10 Hz), or merged and sent at the connection's `hz` of 1, 2 or 5                                          |
+| `group:<name>`          | `/telemetry` | All fields that changed for satellites in the group, merged, 2 Hz. Names: `stations`, `weather`, `comms`, `earth-obs`, `navigation`, `science`, `amateur`          |
+| `fleet`                 | `/telemetry` | Position, status and fleet-table columns (`lat`, `lon`, `altKm`, `batSoc`, `mode`, `shadow`, `solarW`, `panelTempC`, `stationId`) for all satellites, merged, 1 Hz |
+| `system`                | `/telemetry` | `PipelineStats` once per second                                                                                                                                    |
+| `alerts:all`            | `/alerts`    | Every alert event                                                                                                                                                  |
+| `alerts:sev:<severity>` | `/alerts`    | Alert events of one severity (`WARNING`, `CAUTION` or `ADVISORY`)                                                                                                  |
+| `alerts:sat:<satId>`    | `/alerts`    | Alert events of one satellite                                                                                                                                      |
 
 Room names are parsed strictly by [parseRoom](../packages/shared/src/rooms.ts); anything else is
 `invalid_room`. Any authenticated role may join any room in its namespace; roles gate REST actions, not

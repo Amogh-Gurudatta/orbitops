@@ -2,7 +2,11 @@
 //   sat:{id}    every tick, via one room emit (clients wanting < 10 Hz get a per-socket merged batch instead)
 //   group:{g}   coalesced, ~2 Hz
 //   fleet       coalesced, position + key status only, ~1 Hz
-// Every telemetry emit is volatile: a client that cannot keep up misses frames instead of queueing them.
+// Emits are deliberately NOT `volatile`. Socket.IO drops a volatile packet whenever the socket is still
+// flushing the previous one, so a client in several rooms (e.g. `fleet` + `sat:25544`) would only receive
+// the first packet of each tick. Instead every client gets reliable emits and is protected by explicit
+// backpressure (see backpressure.ts): a client whose write buffer grows is downgraded to the 1 Hz fleet
+// feed, and disconnected with a 'kick' if it stays slow.
 import type { Namespace } from 'socket.io';
 import {
   FLEET_HZ,
@@ -139,7 +143,7 @@ export class Broadcaster {
     const recipients = members.size - excluded;
     if (recipients <= 0) return;
 
-    let op = nsp.volatile.to(room);
+    let op = nsp.to(room);
     if (except.size > 0) op = op.except([...except]);
     op.emit(TM_DELTA, payload);
     counters.inc('messages', recipients);
@@ -147,7 +151,7 @@ export class Broadcaster {
   }
 
   private emitTo(client: TelemetryClient, payload: TmDelta[]): void {
-    client.socket.volatile.emit(TM_DELTA, payload);
+    client.socket.emit(TM_DELTA, payload);
     this.deps.counters.inc('messages');
     this.deps.counters.inc('bytes', this.packetBytes(payload));
   }

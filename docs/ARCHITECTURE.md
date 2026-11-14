@@ -92,7 +92,7 @@ flowchart LR
   end
 
   TR -->|"emitWithAck batch"| NSI
-  NST -->|"volatile TM deltas"| WK
+  NST -->|"TM deltas (msgpack)"| WK
   NSA -->|"reliable ALERT"| WK
   REST -->|"history, snapshots"| RB
 ```
@@ -201,7 +201,7 @@ sequenceDiagram
   loop every 100 ms
     Bc->>State: drainDirty()
     State-->>Bc: deltas {s, q, t, d}
-    Bc->>Wk: volatile 'tm' to sat/group/fleet rooms (msgpack)
+    Bc->>Wk: 'tm' to sat/group/fleet rooms (msgpack)
   end
   Wk->>Wk: decode, merge into full frame, drop seq <= watermark
   Wk->>UI: batch every 50 ms (transferable arrays)
@@ -223,7 +223,7 @@ those in [the problem statement](MERNIFY_ProblemStatement.pdf).
 | **In-memory dedup and reorder, not unique indexes**                       | MongoDB time-series collections cannot enforce unique indexes. A per-source LRU window of the last 1024 sequence numbers is O(1), needs no database round trip, and keeps duplicate handling off the write path. A persisted `{satId, seq}` mark loaded at boot covers restarts. See [DATA_MODEL.md](DATA_MODEL.md#how-duplicates-are-handled-without-unique-indexes). | Duplicate and out-of-order handling          |
 | **Dirty-field deltas, short keys, rounded values, msgpack**               | Most fields change little between ticks. Sending only changed fields with 1-2 character keys, rounded to a fixed precision (so sub-precision jitter is not sent), in a MessagePack frame, cuts bytes per update to roughly a fifth of verbose JSON (measured sample in [REALTIME.md](REALTIME.md#delta-encoding)).                                                     | Latency, throughput, bandwidth               |
 | **Socket.IO rooms with per-room rates**                                   | Clients subscribe only to what they show: `sat:ID` at up to 10 Hz, `group:NAME` at 2 Hz, `fleet` at 1 Hz with six fields. The server computes one delta set per tick and fans it out, so cost scales with rooms, not with clients times satellites.                                                                                                                    | Selective broadcasting, namespaces and rooms |
-| **Volatile telemetry, reliable alerts**                                   | A stale position is worthless, so telemetry is sent volatile and a client that cannot keep up simply misses frames instead of building a queue. Alerts are rare and must not be lost, so they use normal reliable emits and are re-synced over REST after a reconnect.                                                                                                 | Responsiveness, correctness                  |
+| **Explicit slow-consumer guard, reliable alerts**                         | Telemetry emits are normal (Socket.IO's `volatile` drops every packet after the first per flush, which broke multi-room clients); a client that cannot keep up is downgraded to the 1 Hz fleet feed and then kicked, so no stale queue builds. Alerts are rare and must not be lost, so they use normal reliable emits and are re-synced over REST after a reconnect.  | Responsiveness, correctness                  |
 | **Socket handling in a Web Worker**                                       | Decoding msgpack, merging deltas, deduplicating and measuring latency run off the UI thread. The worker posts one batch every 50 ms with typed arrays as transferables (zero-copy). The UI thread only appends to ring buffers and paints.                                                                                                                             | Client-side performance                      |
 | **Ring buffers and one `requestAnimationFrame` loop**                     | Fixed-size `Float64Array` buffers (3000 samples per satellite, about five minutes at 10 Hz) never grow or garbage-collect. A single frame loop calls each panel at its own rate cap and only when its data version changed, so a flood of messages cannot cause a flood of renders.                                                                                    | Preventing excessive rendering               |
 | **Bounded queues everywhere**                                             | Writer queue (50,000), simulator buffer (200 per source), per-client send queue (200 packets / 1 MiB), reorder buffer (64). When full, the oldest data is shed and counted, never the newest; alerts are never dropped. Overload becomes a visible metric instead of a crash.                                                                                          | Responsiveness under load                    |
@@ -238,7 +238,7 @@ those in [the problem statement](MERNIFY_ProblemStatement.pdf).
 - **One ingest instance.** Dedup windows, reorder buffers, the state store and the anomaly engine are
   in-process. Running several server instances would need either sticky routing of each `sourceId` to one
   instance or moving that state to a shared store. Only alert relay is cross-instance today.
-- **Telemetry broadcast is not durable.** Deltas are volatile by design; reconnecting clients are re-synced
+- **Telemetry broadcast is not durable.** Missed deltas are not replayed; reconnecting clients are re-synced
   with snapshots, and history comes from REST.
 - **Sockets are authenticated at handshake.** A long-lived socket is not re-checked when its access token
   expires; the web client renews its session whenever a handshake is refused.

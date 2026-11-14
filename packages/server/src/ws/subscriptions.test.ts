@@ -27,7 +27,7 @@ describe('delta coalescing', () => {
     expect(source.d).toEqual({ b: 0.5 });
   });
 
-  it('restricts fleet deltas to position and key status', () => {
+  it('restricts fleet deltas to position, key status and the fleet-table columns', () => {
     expect(
       toFleetDelta({
         s: 1,
@@ -42,7 +42,8 @@ describe('delta coalescing', () => {
       b: 0.5,
       m: 'SAFE',
       sh: 1,
+      tp: 9,
     });
-    expect(toFleetDelta({ s: 1, q: 1, t: 1, d: { tp: 9 } })).toBeNull();
+    expect(toFleetDelta({ s: 1, q: 1, t: 1, d: { r: -90 } })).toBeNull();
   });
 });

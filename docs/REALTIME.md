@@ -23,11 +23,11 @@ flowchart LR
 
 Three Socket.IO namespaces keep concerns apart ([API.md](API.md#socketio) lists every event):
 
-| Namespace    | Audience          | Direction                            | Delivery        |
-| ------------ | ----------------- | ------------------------------------ | --------------- |
-| `/ingest`    | Simulator devices | Telemetry in; commands and chaos out | Acknowledged    |
-| `/telemetry` | Browsers          | Snapshots and deltas out             | Volatile deltas |
-| `/alerts`    | Browsers          | Alert events out                     | Reliable        |
+| Namespace    | Audience          | Direction                            | Delivery       |
+| ------------ | ----------------- | ------------------------------------ | -------------- |
+| `/ingest`    | Simulator devices | Telemetry in; commands and chaos out | Acknowledged   |
+| `/telemetry` | Browsers          | Snapshots and deltas out             | Guarded deltas |
+| `/alerts`    | Browsers          | Alert events out                     | Reliable       |
 
 ## Subscription model
 
@@ -62,13 +62,13 @@ page adds `sat:<id>`.
 
 ## Rooms and rates
 
-| Room         | Rate                                         | Fields                                            | Why                                     |
-| ------------ | -------------------------------------------- | ------------------------------------------------- | --------------------------------------- |
-| `sat:<id>`   | 10 Hz, or the connection's `hz` of 1, 2 or 5 | All changed fields                                | Detail views need smooth traces         |
-| `group:<g>`  | 2 Hz                                         | All changed fields, merged                        | Group tables and filtered views         |
-| `fleet`      | 1 Hz                                         | `lat`, `lon`, `altKm`, `batSoc`, `mode`, `shadow` | Globe and fleet table for 64 satellites |
-| `system`     | 1 Hz                                         | `PipelineStats`                                   | System page                             |
-| alerts rooms | On change                                    | `Alert`                                           | Operators must see alerts immediately   |
+| Room         | Rate                                         | Fields                                                                                 | Why                                     |
+| ------------ | -------------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------- |
+| `sat:<id>`   | 10 Hz, or the connection's `hz` of 1, 2 or 5 | All changed fields                                                                     | Detail views need smooth traces         |
+| `group:<g>`  | 2 Hz                                         | All changed fields, merged                                                             | Group tables and filtered views         |
+| `fleet`      | 1 Hz                                         | `lat`, `lon`, `altKm`, `batSoc`, `mode`, `shadow`, `solarW`, `panelTempC`, `stationId` | Globe and fleet table for 64 satellites |
+| `system`     | 1 Hz                                         | `PipelineStats`                                                                        | System page                             |
+| alerts rooms | On change                                    | `Alert`                                                                                | Operators must see alerts immediately   |
 
 The rates are constants in [constants.ts](../packages/shared/src/constants.ts) (`BROADCAST_HZ = 10`,
 `GROUP_HZ = 2`, `FLEET_HZ = 1`). The fleet view shows 64 moving points; sending six fields once per second
@@ -83,7 +83,7 @@ instead of all 18 fields ten times per second is roughly a 30x reduction for tha
    pipeline marks only the fields whose rounded value changed; the drain turns them into one delta per
    satellite and clears the marks. A field that changed five times within a tick is sent once, with its latest
    value.
-3. Emits each delta to its `sat:<id>` room as a volatile packet.
+3. Emits each delta to its `sat:<id>` room.
 4. For clients that asked for less than 10 Hz, merges deltas into a per-socket pending map and sends it when
    that client's interval has elapsed. Merging keeps the latest value per field and the newest `seq`.
 5. Every 500 ms, sends the accumulated per-group merges to the `group:*` rooms.
@@ -124,16 +124,20 @@ sending unchanged samples at all. At the lower rates a simulator normally runs (
 delta, so the saving per message is smaller but the message count is lower. See [PERFORMANCE.md](PERFORMANCE.md)
 for end-to-end bandwidth under load.
 
-## Volatile and reliable delivery
+## Delivery guarantees
 
 | Traffic                 | Delivery          | Reason                                                                                                                          |
 | ----------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `tm` deltas, `stats`    | Volatile          | A late position is worthless. If a client's socket cannot take the packet now, it is skipped rather than queued                 |
+| `tm` deltas, `stats`    | Normal + guarded  | Bounded by explicit backpressure: a client whose buffer grows is downgraded to the 1 Hz fleet feed, then kicked (see below)     |
 | `snap` snapshots        | Normal            | Sent once per subscribe; needed for correctness                                                                                 |
 | `alert`, `alert:update` | Normal (reliable) | Rare and important; replayed after a short disconnect by connection state recovery, and re-fetched over REST after a longer one |
 | `batch` (ingest)        | Acknowledged      | The producer must know what was accepted                                                                                        |
 
-Volatile emits mean the server never builds a queue of stale telemetry for a struggling client.
+Telemetry deliberately does **not** use Socket.IO's `volatile` flag. A volatile packet is dropped whenever the
+socket is still flushing the previous one, so a client subscribed to several rooms (for example `fleet` plus
+`sat:25544`) only received the first packet of each tick. Instead every emit is a normal one, and the
+slow-consumer guard below keeps a struggling client from building an unbounded queue: it is the explicit,
+per-client version of what `volatile` tried to do globally.
 
 ## Backpressure and slow consumers
 
@@ -158,7 +162,7 @@ flowchart LR
     B1 --> B3
   end
   subgraph C["Hop 3: server to browser"]
-    C1["Volatile deltas"]
+    C1["Delta emits per room"]
     C2["Over 200 queued packets or 1 MiB buffered"]
     C3["Downgrade to 1 Hz fleet feed"]
     C4["Still slow after 10 s: 'kick' + disconnect"]
@@ -196,7 +200,7 @@ The server enables Socket.IO [connection state recovery](https://socket.io/docs/
 with a 2-minute window ([io.ts](../packages/server/src/ws/io.ts)). A client that reconnects within it keeps its
 rooms and receives the reliable packets (alerts) it missed.
 
-Volatile telemetry is never replayed, so for a recovered `/telemetry` connection the server immediately sends
+Missed telemetry is never replayed (only alerts are), so for a recovered `/telemetry` connection the server immediately sends
 fresh snapshots for its rooms ([telemetryNamespace.ts](../packages/server/src/ws/telemetryNamespace.ts)).
 
 Longer outages, or a server restart, give a normal reconnect. The web worker re-sends all its subscriptions on
@@ -344,7 +348,7 @@ latency.
 | One drain per tick feeding all rooms                             | [broadcaster.ts](../packages/server/src/ws/broadcaster.ts)                                                                     |
 | Per-room rates and delta coalescing (10 / 2 / 1 Hz)              | [broadcaster.ts](../packages/server/src/ws/broadcaster.ts), [coalesce.ts](../packages/server/src/ws/coalesce.ts)               |
 | Per-client rate (1, 2, 5, 10 Hz) and merged batches              | [clients.ts](../packages/server/src/ws/clients.ts), [subscriptions.ts](../packages/server/src/ws/subscriptions.ts)             |
-| Volatile telemetry emits                                         | [broadcaster.ts](../packages/server/src/ws/broadcaster.ts)                                                                     |
+| Slow-consumer guard instead of volatile emits                    | [broadcaster.ts](../packages/server/src/ws/broadcaster.ts)                                                                     |
 | Slow-consumer downgrade and kick                                 | [backpressure.ts](../packages/server/src/ws/backpressure.ts)                                                                   |
 | Subscription limits (50 rooms, 20 changes per 10 s)              | [subscriptions.ts](../packages/server/src/ws/subscriptions.ts)                                                                 |
 | Message size cap (256 KiB)                                       | [io.ts](../packages/server/src/ws/io.ts)                                                                                       |
