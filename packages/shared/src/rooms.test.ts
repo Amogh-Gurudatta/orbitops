@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MAX_ROOMS_PER_CLIENT } from './constants.js';
 import {
   FLEET_ROOM,
+  SYSTEM_ROOM,
   SubscribeRequest,
   alertsRoom,
   alertsSatRoom,
@@ -9,6 +10,7 @@ import {
   groupRoom,
   parseRoom,
   satRoom,
+  systemRoom,
 } from './rooms.js';
 
 describe('room builders', () => {
@@ -19,6 +21,8 @@ describe('room builders', () => {
     expect(alertsRoom()).toBe('alerts:all');
     expect(alertsSeverityRoom('WARNING')).toBe('alerts:sev:WARNING');
     expect(alertsSatRoom(25544)).toBe('alerts:sat:25544');
+    expect(systemRoom()).toBe(SYSTEM_ROOM);
+    expect(SYSTEM_ROOM).toBe('system');
   });
 });
 
@@ -27,6 +31,7 @@ describe('parseRoom', () => {
     expect(parseRoom(satRoom(25544))).toEqual({ kind: 'sat', satId: 25544 });
     expect(parseRoom(groupRoom('comms'))).toEqual({ kind: 'group', group: 'comms' });
     expect(parseRoom(FLEET_ROOM)).toEqual({ kind: 'fleet' });
+    expect(parseRoom(SYSTEM_ROOM)).toEqual({ kind: 'system' });
     expect(parseRoom(alertsRoom())).toEqual({ kind: 'alerts-all' });
     expect(parseRoom(alertsSeverityRoom('CAUTION'))).toEqual({
       kind: 'alerts-severity',
@@ -45,6 +50,7 @@ describe('parseRoom', () => {
     'alerts:sev:LOW',
     'alerts:sat:x',
     'admin',
+    'system:1',
     'fleet:1',
   ])('rejects %j', (name) => {
     expect(parseRoom(name)).toBeNull();

@@ -5,7 +5,10 @@ import { SEVERITIES, type Severity } from './alerts.js';
 
 export const FLEET_ROOM = 'fleet';
 export const ALERTS_ALL_ROOM = 'alerts:all';
+/** Server pipeline stats (SERVER_STATS) are published to this /telemetry room. */
+export const SYSTEM_ROOM = 'system';
 
+export const systemRoom = (): string => SYSTEM_ROOM;
 export const satRoom = (satId: number): string => `sat:${satId}`;
 export const groupRoom = (group: SatGroup): string => `group:${group}`;
 export const alertsRoom = (): string => ALERTS_ALL_ROOM;
@@ -14,6 +17,7 @@ export const alertsSatRoom = (satId: number): string => `alerts:sat:${satId}`;
 
 export type ParsedRoom =
   | { kind: 'fleet' }
+  | { kind: 'system' }
   | { kind: 'sat'; satId: number }
   | { kind: 'group'; group: SatGroup }
   | { kind: 'alerts-all' }
@@ -27,6 +31,7 @@ const isSeverity = (v: string): v is Severity => (SEVERITIES as readonly string[
 /** Returns null for anything that is not a well-formed room name. */
 export function parseRoom(name: string): ParsedRoom | null {
   if (name === FLEET_ROOM) return { kind: 'fleet' };
+  if (name === SYSTEM_ROOM) return { kind: 'system' };
   if (name === ALERTS_ALL_ROOM) return { kind: 'alerts-all' };
 
   const parts = name.split(':');
