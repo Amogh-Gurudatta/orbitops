@@ -27,7 +27,8 @@ export interface Satellite {
   group: SatGroup;
   line1: string;
   line2: string;
-  epoch: string;
+  /** TLE epoch, epoch milliseconds. */
+  epoch: number;
   status: ServerSatStatus;
 }
 

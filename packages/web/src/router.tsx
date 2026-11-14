@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
             element: <AppShell />,
             children: [
               { index: true, lazy: () => import('./pages/FleetPage.tsx') },
-              { path: 'sat/:satId', lazy: () => import('./pages/SatellitePage.tsx') },
+              { path: 'sat/:satId?', lazy: () => import('./pages/SatellitePage.tsx') },
               { path: 'stations', lazy: () => import('./pages/StationsPage.tsx') },
               { path: 'alerts', lazy: () => import('./pages/AlertsPage.tsx') },
               { path: 'analytics', lazy: () => import('./pages/AnalyticsPage.tsx') },

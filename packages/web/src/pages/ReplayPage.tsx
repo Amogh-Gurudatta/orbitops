@@ -1,7 +1,6 @@
-import { Placeholder } from './Placeholder.tsx';
+// /replay: timeline scrubber driving the globe and charts from history.
+import { ReplayView } from '../features/replay/ReplayView.tsx';
 
 export function Component() {
-  return (
-    <Placeholder code="RPL" title="Replay" note="timeline scrubber driving globe and charts" />
-  );
+  return <ReplayView />;
 }
