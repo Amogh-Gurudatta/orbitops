@@ -87,7 +87,7 @@ export function Component() {
           </header>
 
           <p className="max-w-[56ch] text-sm leading-[20px] text-text-2">
-            Live monitoring of a 65-spacecraft fleet. Orbits are propagated from real two-line
+            Live monitoring of a 64-spacecraft fleet. Orbits are propagated from real two-line
             elements; telemetry is simulated, streamed at up to 10 Hz, deduplicated and persisted,
             and checked by an anomaly engine that raises alerts per subsystem.
           </p>
