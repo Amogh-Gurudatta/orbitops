@@ -14,11 +14,14 @@ export interface ChartSpec {
   factor: number;
   normalBand?: readonly [number, number];
   limits?: Limits;
+  /** Minimum visible y span so noise doesn't fill the panel. */
+  minSpan?: number;
 }
 
 const spec = (
   metric: NumericMetric,
-  extra: Pick<ChartSpec, 'normalBand' | 'limits'> & Partial<Pick<ChartSpec, 'label'>> = {},
+  extra: Pick<ChartSpec, 'normalBand' | 'limits' | 'minSpan'> &
+    Partial<Pick<ChartSpec, 'label'>> = {},
 ): ChartSpec => {
   const meta = METRIC_META[metric];
   return {
@@ -29,6 +32,7 @@ const spec = (
     factor: meta.scale,
     normalBand: extra.normalBand,
     limits: extra.limits,
+    minSpan: extra.minSpan,
   };
 };
 
@@ -37,13 +41,19 @@ export const CHART_SPECS = {
     normalBand: [30, 100],
     limits: { caution: { lo: 20 }, warning: { lo: 10 } },
   }),
-  solarW: spec('solarW', { label: 'SA PWR' }),
-  busA: spec('busA'),
-  panelTempC: spec('panelTempC', { limits: { caution: { hi: 70 }, warning: { hi: 85 } } }),
-  obcTempC: spec('obcTempC', { limits: { caution: { hi: 55 } } }),
-  rssiDbm: spec('rssiDbm'),
-  snrDb: spec('snrDb'),
-  attRateDps: spec('attRateDps', { limits: { caution: { hi: 1 }, warning: { hi: 2 } } }),
+  solarW: spec('solarW', { label: 'SA PWR', minSpan: 100 }),
+  busA: spec('busA', { minSpan: 1 }),
+  panelTempC: spec('panelTempC', {
+    limits: { caution: { hi: 70 }, warning: { hi: 85 } },
+    minSpan: 20,
+  }),
+  obcTempC: spec('obcTempC', { limits: { caution: { hi: 55 } }, minSpan: 10 }),
+  rssiDbm: spec('rssiDbm', { minSpan: 20 }),
+  snrDb: spec('snrDb', { minSpan: 10 }),
+  attRateDps: spec('attRateDps', {
+    limits: { caution: { hi: 1 }, warning: { hi: 2 } },
+    minSpan: 0.5,
+  }),
 } as const satisfies Record<string, ChartSpec>;
 
 export type ChartKey = keyof typeof CHART_SPECS;

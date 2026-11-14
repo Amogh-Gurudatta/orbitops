@@ -46,6 +46,11 @@ export interface StripChartProps {
   limits?: Limits;
   /** Fixed y range (disables auto-ranging). */
   yRange?: readonly [number, number];
+  /**
+   * Smallest y span the auto-range may shrink to (display units). Keeps sensor noise visually quiet
+   * instead of stretching a 0.5 °C wobble across the whole panel (ISA-101: stable scales).
+   */
+  minSpan?: number;
   /** Sample spacing above which the span is drawn as a hatched no-data gap (seconds, default 5). */
   gapSeconds?: number;
   className?: string;
@@ -66,6 +71,7 @@ export function StripChart({
   normalBand,
   limits,
   yRange,
+  minSpan,
   gapSeconds = 5,
   className,
   ref,
@@ -78,8 +84,8 @@ export function StripChart({
   const visibleRef = useRef(true);
 
   // Hooks read the latest props from here, so band/limit changes need no re-creation.
-  const live = useRef({ series, normalBand, limits, yRange, gapSeconds });
-  live.current = { series, normalBand, limits, yRange, gapSeconds };
+  const live = useRef({ series, normalBand, limits, yRange, minSpan, gapSeconds });
+  live.current = { series, normalBand, limits, yRange, minSpan, gapSeconds };
 
   const structure = series.map((s) => `${s.label}|${s.unit ?? ''}|${s.scale ?? 1}`).join(';');
 
@@ -193,6 +199,7 @@ type LiveProps = {
     normalBand?: readonly [number, number];
     limits?: Limits;
     yRange?: readonly [number, number];
+    minSpan?: number;
     gapSeconds: number;
   };
 };
@@ -253,8 +260,8 @@ function buildOptions(
       x: { time: true },
       y: {
         range: (_u, min, max) => {
-          const { yRange, normalBand, limits } = props.current;
-          return yRange ? [yRange[0], yRange[1]] : autoRange(min, max, normalBand, limits);
+          const { yRange, normalBand, limits, minSpan } = props.current;
+          return yRange ? [yRange[0], yRange[1]] : autoRange(min, max, normalBand, limits, minSpan);
         },
       },
     },
@@ -262,6 +269,7 @@ function buildOptions(
       {
         stroke: TOKENS.textDim,
         font: axisFont,
+        values: utcTickLabels,
         grid: { stroke: TOKENS.grid, width: 1 },
         ticks: { stroke: TOKENS.rule, width: 1, size: 4 },
         border: { stroke: TOKENS.rule, width: 1 },
@@ -294,14 +302,36 @@ function buildOptions(
   };
 }
 
+const pad2 = (n: number): string => String(n).padStart(2, '0');
+
+/** UTC tick labels: HH:MM:SS for short windows, HH:MM beyond 10 minutes, with a day prefix past 24 h. */
+function utcTickLabels(u: uPlot, splits: number[]): string[] {
+  const span = (u.scales.x?.max ?? 0) - (u.scales.x?.min ?? 0);
+  return splits.map((s) => {
+    const d = new Date(s * 1000);
+    const hm = `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+    if (span > 86_400) return `${pad2(d.getUTCDate())}/${hm}`;
+    return span > 600 ? hm : `${hm}:${pad2(d.getUTCSeconds())}`;
+  });
+}
+
 function autoRange(
   min: number | null,
   max: number | null,
   band?: readonly [number, number],
   limits?: Limits,
+  minSpan = 0,
 ): uPlot.Range.MinMax {
   let lo = min ?? band?.[0] ?? 0;
   let hi = max ?? band?.[1] ?? 1;
+  if (hi - lo < minSpan) {
+    const mid = (hi + lo) / 2;
+    const nonNegative = lo >= 0;
+    lo = mid - minSpan / 2;
+    hi = mid + minSpan / 2;
+    // Don't invent a negative axis for a quantity that never goes below zero (rates, power).
+    if (nonNegative && lo < 0) [lo, hi] = [0, hi - lo];
+  }
   if (band) {
     lo = Math.min(lo, band[0]);
     hi = Math.max(hi, band[1]);

@@ -94,6 +94,7 @@ function ReplayChart({
         series={[{ label: spec.label, unit: spec.unit, decimals: spec.decimals }]}
         normalBand={spec.normalBand}
         limits={spec.limits}
+        minSpan={spec.minSpan}
         gapSeconds={COVERAGE_GAP_MS / 1000}
       />
       <div

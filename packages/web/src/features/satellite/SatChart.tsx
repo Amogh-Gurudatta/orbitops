@@ -44,6 +44,7 @@ export function SatChart({ satId, spec, range, bands, className }: SatChartProps
         hz={chartHz(range)}
         normalBand={spec.normalBand}
         limits={spec.limits}
+        minSpan={spec.minSpan}
         gapSeconds={gaps}
       />
     </div>
