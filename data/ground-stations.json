@@ -1,0 +1,21 @@
+{
+  "note": "Approximate public locations of real ground-station sites (lat/lon in degrees, altitude in km). Used for visibility and pass prediction.",
+  "stations": [
+    { "id": "SVAL", "name": "Svalbard (KSAT)", "network": "KSAT", "lat": 78.23, "lon": 15.39, "altKm": 0.5, "minElevDeg": 5 },
+    { "id": "TROL", "name": "Troll (KSAT)", "network": "KSAT", "lat": -72.01, "lon": 2.53, "altKm": 1.27, "minElevDeg": 5 },
+    { "id": "KIRU", "name": "Kiruna", "network": "ESTRACK", "lat": 67.86, "lon": 20.96, "altKm": 0.4, "minElevDeg": 5 },
+    { "id": "REDU", "name": "Redu", "network": "ESTRACK", "lat": 50.0, "lon": 5.15, "altKm": 0.38, "minElevDeg": 10 },
+    { "id": "CEBR", "name": "Cebreros", "network": "ESTRACK", "lat": 40.45, "lon": -4.37, "altKm": 0.79, "minElevDeg": 10 },
+    { "id": "NNOR", "name": "New Norcia", "network": "ESTRACK", "lat": -31.05, "lon": 116.19, "altKm": 0.25, "minElevDeg": 10 },
+    { "id": "MALA", "name": "Malargüe", "network": "ESTRACK", "lat": -35.78, "lon": -69.4, "altKm": 1.55, "minElevDeg": 10 },
+    { "id": "KOUR", "name": "Kourou", "network": "ESTRACK", "lat": 5.25, "lon": -52.8, "altKm": 0.01, "minElevDeg": 10 },
+    { "id": "WALL", "name": "Wallops", "network": "NASA NEN", "lat": 37.94, "lon": -75.46, "altKm": 0.01, "minElevDeg": 5 },
+    { "id": "WSGT", "name": "White Sands", "network": "NASA NEN", "lat": 32.5, "lon": -106.61, "altKm": 1.4, "minElevDeg": 5 },
+    { "id": "FAIR", "name": "Fairbanks", "network": "NASA NEN", "lat": 64.86, "lon": -147.85, "altKm": 0.3, "minElevDeg": 5 },
+    { "id": "MCMU", "name": "McMurdo", "network": "NASA NEN", "lat": -77.84, "lon": 166.67, "altKm": 0.1, "minElevDeg": 5 },
+    { "id": "GDSC", "name": "Goldstone", "network": "DSN", "lat": 35.43, "lon": -116.89, "altKm": 1.0, "minElevDeg": 10 },
+    { "id": "MDSC", "name": "Madrid", "network": "DSN", "lat": 40.43, "lon": -4.25, "altKm": 0.83, "minElevDeg": 10 },
+    { "id": "CDSC", "name": "Canberra", "network": "DSN", "lat": -35.4, "lon": 148.98, "altKm": 0.69, "minElevDeg": 10 },
+    { "id": "BLR",  "name": "Bengaluru (ISTRAC)", "network": "ISRO", "lat": 13.03, "lon": 77.51, "altKm": 0.9, "minElevDeg": 5 }
+  ]
+}
