@@ -5,7 +5,7 @@ import {
   COMMAND,
   INGEST_BATCH,
   type ChaosConfig,
-  type Command,
+  Command,
   type IngestAck,
 } from '@orbitops/shared';
 import { deviceSocketAuth } from '../auth/socketAuth.js';
@@ -16,12 +16,10 @@ import type { Logger } from '../logger.js';
 /** Server -> device event carrying the current ChaosConfig. */
 export const CHAOS_EVENT = 'chaos';
 
-/** A command as relayed to devices; the id lets later phases correlate it with the audit record. */
-export type DeviceCommand = Command & { id?: string; issuedBy?: string };
 
 export interface DeviceGateway {
   /** Emits to every connected device; simulators ignore satellites they do not own. Returns device count. */
-  sendCommandToDevices(command: DeviceCommand): number;
+  sendCommandToDevices(command: Command): number;
   /** Stores the config (sent to devices that connect later) and pushes it to connected devices. */
   broadcastChaos(config: ChaosConfig): void;
   currentChaos(): ChaosConfig;
@@ -32,7 +30,8 @@ export function createDeviceGateway(nsp: Namespace): DeviceGateway {
   let chaos: ChaosConfig = { ...CHAOS_DEFAULTS };
   return {
     sendCommandToDevices(command) {
-      nsp.emit(COMMAND, command);
+      // Devices validate with the strict shared Command schema, so send exactly its fields (no audit metadata).
+      nsp.emit(COMMAND, Command.parse(command));
       return nsp.sockets.size;
     },
     broadcastChaos(config) {

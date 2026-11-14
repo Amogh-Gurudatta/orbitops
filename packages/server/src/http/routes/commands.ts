@@ -42,7 +42,7 @@ export function createCommandsRouter(ctx: ServerContext): Router {
     });
     const record = toWire(doc.toObject());
     if (delivered) {
-      ctx.gateway.sendCommandToDevices({ ...command, id: record.id, issuedBy: user.email });
+      ctx.gateway.sendCommandToDevices(command);
     }
     res.status(202).json({ command: record });
   });

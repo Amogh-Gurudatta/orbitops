@@ -498,8 +498,8 @@ describe('commands and chaos', () => {
       status: 'sent',
     });
     expect(res.body.command.id).toEqual(expect.any(String));
-    expect(await received).toMatchObject({
-      id: res.body.command.id,
+    // Relayed payload is exactly the shared Command (the simulator parses it with a strict schema).
+    expect(await received).toStrictEqual({
       satId: SAT_HISTORY,
       kind: 'inject_fault',
       fault: 'battery',
