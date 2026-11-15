@@ -57,7 +57,7 @@ export function SatelliteHeader({
   const fmt = new Intl.NumberFormat('en-US');
 
   return (
-    <header className="flex shrink-0 flex-col border border-rule bg-panel">
+    <header className="flex shrink-0 flex-col border border-rule bg-panel" data-tour="sat-history">
       <div className="flex min-h-[40px] flex-wrap items-center gap-x-2 gap-y-0.5 px-1 py-0.5">
         <h1 className="mnemonic text-lg text-text">{satellite.name}</h1>
         <Field label="NORAD" value={String(satellite.satId)} />

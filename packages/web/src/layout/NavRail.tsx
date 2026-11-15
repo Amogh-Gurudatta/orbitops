@@ -35,6 +35,7 @@ export function NavRail() {
   return (
     <nav
       aria-label="Primary"
+      data-tour="nav-rail"
       className="flex w-(--nav-rail-w) shrink-0 flex-col border-r border-rule bg-panel"
     >
       {items.map((item) => (

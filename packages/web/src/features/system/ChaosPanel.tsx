@@ -78,7 +78,7 @@ export function ChaosPanel({ history }: { history: StatsHistory }) {
         <ErrorState error={chaos.error} onRetry={() => void chaos.refetch()} />
       ) : (
         <>
-          <div className="flex h-4 items-center gap-1 border-b border-grid px-1">
+          <div className="flex h-4 items-center gap-1 border-b border-grid px-1" data-tour="chaos">
             <span className="mnemonic flex-1 text-xs text-text-2">CHAOS</span>
             <span
               className={cx('mnemonic text-xs', config.enabled ? 'text-caution' : 'text-text-dim')}

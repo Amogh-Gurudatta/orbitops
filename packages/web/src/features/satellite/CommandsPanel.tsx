@@ -89,7 +89,7 @@ function OperatorCommands({ satId, satName }: { satId: number; satName: string }
 
   return (
     <Panel title="COMMANDS" subtitle={satName} flush bodyClassName="flex flex-col">
-      <div className="flex flex-col gap-1 border-b border-rule p-1">
+      <div className="flex flex-col gap-1 border-b border-rule p-1" data-tour="sat-commands">
         <div className="flex items-center gap-1">
           <SegmentedControl<FaultKind>
             aria-label="Fault type"

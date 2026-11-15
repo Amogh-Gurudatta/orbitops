@@ -36,17 +36,21 @@ export function ConsoleBar() {
         <span className="mnemonic text-lg tracking-[0.18em]">ORBITOPS</span>
       </Link>
       <span className="h-3 border-l border-rule" aria-hidden="true" />
-      <div className="hidden md:block">
+      <div className="hidden md:block" data-tour="clocks">
         <MissionClocks />
       </div>
       <div className="flex-1" />
-      <MasterLamps />
-      <div className="hidden lg:block">
-        <SubsystemStrip />
+      <div className="flex items-center gap-2" data-tour="annunciators">
+        <MasterLamps />
+        <div className="hidden lg:block">
+          <SubsystemStrip />
+        </div>
       </div>
       <span className="h-3 border-l border-rule" aria-hidden="true" />
-      <LatencyReadout />
-      <ConnectionBadge label={connection.label} />
+      <div className="flex items-center gap-2" data-tour="link">
+        <LatencyReadout />
+        <ConnectionBadge label={connection.label} />
+      </div>
       <button
         type="button"
         onClick={() => openPalette(true)}

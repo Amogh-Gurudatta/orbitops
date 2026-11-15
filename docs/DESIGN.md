@@ -265,6 +265,20 @@ and memory; connected sockets; end-to-end latency percentiles measured in the br
 shows what one broadcast message contains; and the **chaos** controls (admin only) that inject duplicates,
 reordering and malformed events.
 
+### Onboarding tour
+
+A guided tour of the console (13 steps for an admin, 12 for an operator, 11 for a viewer) starts once after a
+user's first sign-in and can be replayed with `shift+?`, from the `Ctrl+K` palette, or from the user menu. It is
+built on react-joyride but drawn entirely with the system's own pieces: the tooltip is a 1 px `rule`-bordered
+`panel` with a Barlow Condensed caps title, B612 body, a "STEP 03 / 11" counter in B612 Mono and the flat `Button`
+(BACK, NEXT, SKIP TOUR, DONE). The overlay is the `bg` token at 70% with a 1 px white (`select`) outline around the
+target, square corners and no glow, blur, shadow or arrow. There is **no beacon**: it is a pulsing dot, which the
+design bans, so each step opens directly as a tooltip. The only motion is an 80 ms scroll to bring the target into
+view, and none under `prefers-reduced-motion`. The tooltip is a `role="dialog"` that takes focus, closes on `Esc`, and
+sits above the panels and console bar but below toasts. Steps point only at controls the user's role can use, so
+viewers never see the commands or chaos steps. The code lives in
+[src/features/tour](../packages/web/src/features/tour); targets are `data-tour` attributes, not CSS classes.
+
 ### ADM: Administration
 
 Admin only. Users (create, change role) and device API keys (create, revoke; the plaintext key is shown once).

@@ -160,7 +160,9 @@ export function Component() {
             onLayoutChange={onLayoutChange}
           >
             {activeLayout.map((p) => (
-              <div key={p.i}>{panels[p.i]}</div>
+              <div key={p.i} data-tour={`panel-${p.i}`}>
+                {panels[p.i]}
+              </div>
             ))}
           </ReactGridLayout>
         )}

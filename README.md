@@ -98,6 +98,9 @@ Also: an analytics page with a fleet heatmap and a study of one satellite agains
 an alarm log with filters and tunable rules, and a command palette on `Ctrl+K` (or `Cmd+K`) to jump to any
 satellite. Page hotkeys are `g` then `f`, `s`, `g`, `a`, `n`, `r`, `y` or `d`.
 
+A guided tour of the console starts by itself the first time you sign in (steps vary by role); replay it any time with
+`shift+?` or "Start guided tour" in the `Ctrl+K` palette or the user menu.
+
 ## Features
 
 Mapped to the hackathon brief.
@@ -294,8 +297,6 @@ Dockerfile, docker-compose.yml, compose.app.yml, render.yaml
 
 ## Credits and attribution
 
-**AI assistance.** Built with AI coding assistance; all code reviewed and understood by the author.
-
 **Data and resources**
 
 | Resource                                                      | Use                                                                                             | Licence / terms                               |
@@ -356,6 +357,7 @@ _Web app_
 | [cmdk](https://github.com/pacocoursey/cmdk) 1.1                                 | Command palette                            | MIT        |
 | [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) 2.3 | Draggable, resizable panels                | MIT        |
 | [react-hotkeys-hook](https://github.com/JohannesKlauss/react-hotkeys-hook) 5.4  | Keyboard shortcuts                         | MIT        |
+| [React Joyride](https://github.com/gilbarbara/react-joyride) 3.2                | Onboarding tour                            | MIT        |
 | [Sonner](https://sonner.emilkowal.ski) 2.0                                      | Toast notifications (restyled)             | MIT        |
 | [Fontsource](https://fontsource.org) B612, B612 Mono, Barlow Condensed 5.3      | Self-hosted fonts                          | OFL-1.1    |
 

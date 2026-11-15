@@ -1,5 +1,5 @@
 // Ctrl/Cmd+K command palette (cmdk): type-first jump to a satellite by name or NORAD id,
-// navigate pages, toggle alert sound, sign off.
+// navigate pages, toggle alert sound, start the guided tour, sign off.
 import { Command } from 'cmdk';
 import { useNavigate } from 'react-router';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -11,6 +11,7 @@ import { useFleetStore } from '../realtime/fleetStore.ts';
 import { Icon, Kbd, StatusChip } from '../ui/index.ts';
 import { useCommandPalette } from './commandPaletteState.ts';
 import { useResolveNavPath } from './NavRail.tsx';
+import { useTour } from '../features/tour/tourContext.ts';
 
 const ITEM =
   'mnemonic flex h-3 cursor-default items-center gap-1 px-1 text-xs text-text-2 data-[selected=true]:bg-grid data-[selected=true]:text-select';
@@ -44,6 +45,7 @@ function PaletteBody({ close }: { close(): void }) {
   const status = useFleetStore((s) => s.status);
   const selectSat = useFleetStore((s) => s.selectSat);
   const soundEnabled = useAlertsStore((s) => s.soundEnabled);
+  const { startTour } = useTour();
 
   const run = (action: () => void) => () => {
     close();
@@ -108,6 +110,16 @@ function PaletteBody({ close }: { close(): void }) {
             <Icon name={soundEnabled ? 'speaker' : 'speaker-off'} size={14} />
             <span className="flex-1 normal-case tracking-normal">Alert sound</span>
             <span className="text-text-dim">{soundEnabled ? 'ON' : 'MUTED'}</span>
+          </Command.Item>
+          <Command.Item
+            value="start guided tour onboarding help"
+            onSelect={run(startTour)}
+            className={ITEM}
+          >
+            <Icon name="orbit" size={14} />
+            <span className="flex-1 normal-case tracking-normal">Start guided tour</span>
+            <Kbd>Shift</Kbd>
+            <Kbd>?</Kbd>
           </Command.Item>
           <Command.Item
             value="sign off logout"
