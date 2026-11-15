@@ -32,6 +32,9 @@ export class SimClock {
   }
 }
 
+/** Largest physics step, as a multiple of the nominal sample interval (see sample()). */
+const MAX_STEP_MULTIPLE = 10;
+
 export class SatelliteAgent {
   readonly noradId: number;
   readonly name: string;
@@ -70,7 +73,10 @@ export class SatelliteAgent {
     const orbit = this.orbit.propagateAt(simDate);
     if (orbit === null) return null;
 
-    const dtS = this.lastSimMs === null ? this.nominalDtS : (simMs - this.lastSimMs) / 1000;
+    // Cap the integration step: after a host suspend or a long event-loop stall the wall-clock gap can
+    // be hours, and integrating it in one step would slam every battery to 0 % (eclipse) or 100 % (sun).
+    const rawDtS = this.lastSimMs === null ? this.nominalDtS : (simMs - this.lastSimMs) / 1000;
+    const dtS = Math.min(rawDtS, this.nominalDtS * MAX_STEP_MULTIPLE);
     this.lastSimMs = simMs;
 
     const data = this.spacecraft.step({

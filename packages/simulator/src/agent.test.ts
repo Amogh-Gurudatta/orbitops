@@ -136,4 +136,12 @@ describe('SatelliteAgent', () => {
     const b = run(makeAgent(0), 0, 50);
     expect(a).toEqual(b);
   });
+
+  it('caps the physics step after a long wall-clock gap (e.g. host suspend)', () => {
+    const agent = makeAgent(0);
+    const before = agent.sample(START)!.data.batSoc;
+    // Four hours later in one step: an uncapped integrator would pin SoC to 0 or 1.
+    const after = agent.sample(START + 4 * 3600_000)!.data.batSoc;
+    expect(Math.abs(after - before)).toBeLessThan(0.05);
+  });
 });
