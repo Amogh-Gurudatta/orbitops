@@ -35,7 +35,8 @@ const DISCHARGE_EFFICIENCY = 0.97;
 const COLD_PANEL_C = -30;
 const PANEL_OVERHEAT_C = 90;
 const PROP_BURN_KG_PER_S = 2e-6;
-const PAYLOAD_SPIKE_MEAN_INTERVAL_S = 90;
+const PAYLOAD_PERIOD_S = 90;
+const PAYLOAD_ON_S = 14;
 
 export interface SpacecraftParams {
   baseLoadW: number;
@@ -95,8 +96,7 @@ export class Spacecraft {
   private panelTempC = 0;
   private obcTempC = 0;
   private propKg: number;
-  private payloadOnUntilS = -1;
-  private thermalInitialised = false;
+    private thermalInitialised = false;
 
   constructor(
     noradId: number,
@@ -116,7 +116,7 @@ export class Spacecraft {
 
     // --- power ---
     const solarW = p.solarMaxW * (1 - shadow) * this.attitudeFactor(simS) * p.panelDegradation;
-    const loadW = this.loadW(simS, dtS);
+    const loadW = this.loadW(simS);
     const netW = solarW - loadW;
     const energyWh =
       ((netW > 0 ? netW * CHARGE_EFFICIENCY : netW / DISCHARGE_EFFICIENCY) * dtS) / 3600;
@@ -174,13 +174,16 @@ export class Spacecraft {
     );
   }
 
-  /** Base load plus occasional payload-on spikes (suppressed in safe mode). */
-  private loadW(simS: number, dtS: number): number {
+  /**
+   * Base load plus a scheduled payload-on window (suppressed in safe mode). The schedule is periodic with a
+   * per-satellite phase, like real payload operations: a rolling baseline always contains it, so it is not
+   * flagged as an anomaly (random clustered spikes were, since a quiet window made the next one look 5 sigma).
+   */
+  private loadW(simS: number): number {
     const safe = this.faults.safeMode;
-    if (!safe && simS >= this.payloadOnUntilS && this.rng() < dtS / PAYLOAD_SPIKE_MEAN_INTERVAL_S) {
-      this.payloadOnUntilS = simS + 8 + 12 * this.rng();
-    }
-    const payloadW = !safe && simS < this.payloadOnUntilS ? this.params.baseLoadW * 0.35 : 0;
+    const phaseS = (this.params.attitudePhase / (2 * Math.PI)) * PAYLOAD_PERIOD_S;
+    const inWindow = (((simS + phaseS) % PAYLOAD_PERIOD_S) + PAYLOAD_PERIOD_S) % PAYLOAD_PERIOD_S < PAYLOAD_ON_S;
+    const payloadW = !safe && inWindow ? this.params.baseLoadW * 0.35 : 0;
     return this.params.baseLoadW * (safe ? SAFE_MODE_LOAD_FACTOR : 1) + payloadW;
   }
 
