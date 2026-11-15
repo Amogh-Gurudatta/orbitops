@@ -192,7 +192,7 @@ producer how many events were accepted, and asks it to slow down when the server
 
 **Real-time communication.** Socket.IO has three namespaces: `/ingest` for producers, `/telemetry` for browsers and
 `/alerts` for alarm events. Browsers join rooms: `sat:<id>` gets up to 10 Hz, `group:<name>` 2 Hz, `fleet` 1 Hz with
-six fields, `system` the pipeline stats. A single 100 ms tick drains the changed fields once and feeds every room,
+nine fields, `system` the pipeline stats. A single 100 ms tick drains the changed fields once and feeds every room,
 so cost grows with rooms, not with clients. Messages are compact MessagePack deltas. A client that falls behind is
 first downgraded to the 1 Hz feed, then disconnected. For history, the server returns the last sequence number it
 read, and the browser drops any live event at or below that watermark. Details:

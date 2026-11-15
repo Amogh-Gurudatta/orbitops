@@ -71,7 +71,7 @@ climbing, the store flush times, and **LAT P95** (event-to-screen latency). Ment
 
 **Say:** "Here are two clients, an admin on the left and a viewer on the right. They are subscribed to different
 Socket.IO rooms. The left window has the ISS's own room, at up to ten updates a second. The right window only has
-the fleet room, which carries six fields per satellite once a second. Neither is sent anything it did not ask for."
+the fleet room, which carries nine fields per satellite once a second. Neither is sent anything it did not ask for."
 
 **Do:** Point at the ISS traces moving smoothly in A, and the rows and globe updating more slowly in B. Switch B to
 a different satellite (`Ctrl+K`, type NOAA 19, Enter) to show its subscription change without reloading.

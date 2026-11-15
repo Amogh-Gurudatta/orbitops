@@ -71,7 +71,7 @@ page adds `sat:<id>`.
 | alerts rooms | On change                                    | `Alert`                                                                                | Operators must see alerts immediately   |
 
 The rates are constants in [constants.ts](../packages/shared/src/constants.ts) (`BROADCAST_HZ = 10`,
-`GROUP_HZ = 2`, `FLEET_HZ = 1`). The fleet view shows 64 moving points; sending six fields once per second
+`GROUP_HZ = 2`, `FLEET_HZ = 1`). The fleet view shows 64 moving points; sending nine fields once per second
 instead of all 18 fields ten times per second is roughly a 30x reduction for that view.
 
 ## The broadcast tick
@@ -87,7 +87,7 @@ instead of all 18 fields ten times per second is roughly a 30x reduction for tha
 4. For clients that asked for less than 10 Hz, merges deltas into a per-socket pending map and sends it when
    that client's interval has elapsed. Merging keeps the latest value per field and the newest `seq`.
 5. Every 500 ms, sends the accumulated per-group merges to the `group:*` rooms.
-6. Every 1000 ms, sends the accumulated fleet merge (six fields) to `fleet`.
+6. Every 1000 ms, sends the accumulated fleet merge (nine fields) to `fleet`.
 
 Because all rooms are fed from the same drained set, adding a subscriber costs a socket write, not another
 computation. Socket.IO also encodes a room broadcast once and writes the same frame to every member. Slow and
