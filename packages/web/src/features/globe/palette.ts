@@ -25,7 +25,7 @@ export const COVERAGE_RAMP: readonly Rgba[] = [
 export const STATUS_COLOR: Record<SatStatus, Rgba> = {
   NOM: [216, 214, 206, 255],
   CAUT: [242, 169, 0, 255],
-  WARN: [232, 55, 44, 255],
+  WARN: [246, 87, 74, 255],
   STALE: [98, 97, 91, 255],
 };
 
@@ -33,6 +33,6 @@ export const STATUS_COLOR: Record<SatStatus, Rgba> = {
 export const STATUS_CSS: Record<SatStatus, string> = {
   NOM: '#d8d6ce',
   CAUT: '#f2a900',
-  WARN: '#e8372c',
+  WARN: '#f6574a',
   STALE: '#62615b',
 };

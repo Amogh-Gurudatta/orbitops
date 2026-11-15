@@ -19,6 +19,7 @@ works, how to run it, and how it was tested.
 | Run the tests or reproduce the demo checks              | [TESTING.md](TESTING.md)           |
 | See load-test numbers and performance results           | [PERFORMANCE.md](PERFORMANCE.md)   |
 | See the visual language of the UI                       | [UI design system](DESIGN.md)      |
+| Record or follow the demo video                         | [DEMO_SCRIPT.md](DEMO_SCRIPT.md)   |
 
 ## Mapping to the hackathon's design-document request
 

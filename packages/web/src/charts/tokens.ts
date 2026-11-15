@@ -9,7 +9,7 @@ export const TOKENS = {
   text2: '#9A988F',
   textDim: '#62615B',
   trace: '#BEBCB4',
-  warning: '#E8372C',
+  warning: '#F6574A',
   caution: '#F2A900',
   advisory: '#6FB6C6',
   predicted: '#D04FD0',
