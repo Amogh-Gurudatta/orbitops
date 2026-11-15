@@ -29,7 +29,15 @@ function securityHeaders(ctx: ServerContext) {
         // Inline styles: React style props and deck.gl set them at runtime.
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'blob:', ...TILE_HOSTS],
-        connectSrc: ["'self'", ...config.clientOrigins.map(websocketOrigin), ...TILE_HOSTS],
+        // data:/blob: let deck.gl and loaders.gl fetch() their in-memory icon atlases and worker payloads; neither
+        // can reach a remote host, so they add no exfiltration route.
+        connectSrc: [
+          "'self'",
+          'data:',
+          'blob:',
+          ...config.clientOrigins.map(websocketOrigin),
+          ...TILE_HOSTS,
+        ],
         workerSrc: ["'self'", 'blob:'],
         fontSrc: ["'self'", 'data:'],
         objectSrc: ["'none'"],

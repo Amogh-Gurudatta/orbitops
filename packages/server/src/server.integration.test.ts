@@ -28,6 +28,17 @@ beforeAll(() => harness.start());
 afterAll(() => harness.stop());
 
 describe('server integration', () => {
+  integration('sends a CSP that lets the globe load its in-memory icon atlases', async () => {
+    const csp = (await fetch(`${baseUrl()}/healthz`)).headers.get('content-security-policy') ?? '';
+    const directive = (name: string) =>
+      csp.split(';').find((d) => d.trim().startsWith(`${name} `)) ?? '';
+    // deck.gl fetch()es data: and blob: URLs; without them in connect-src the satellite icons never render.
+    expect(directive('connect-src')).toMatch(/data:/);
+    expect(directive('connect-src')).toMatch(/blob:/);
+    expect(directive('connect-src')).toContain("'self'");
+    expect(directive('script-src')).not.toContain("'unsafe-eval'");
+  });
+
   integration('serves health, metrics and rejects bad credentials', async () => {
     expect((await fetch(`${baseUrl()}/healthz`)).status).toBe(200);
     expect(await (await fetch(`${baseUrl()}/metrics`)).text()).toContain(
