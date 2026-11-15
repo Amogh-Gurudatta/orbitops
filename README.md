@@ -208,7 +208,7 @@ manager, so navigating pages never causes subscription churn.
 | Layer          | Technology                                              | Version           |
 | -------------- | ------------------------------------------------------- | ----------------- |
 | Runtime        | Node.js, npm workspaces                                 | 24+               |
-| Language       | TypeScript (strict, ES modules everywhere)              | 6.0               |
+| Language       | TypeScript (strict, ES modules everywhere)¹             | 6.0               |
 | Server         | Express                                                 | 5.3               |
 | Real time      | Socket.IO (server and client), MessagePack parser       | 4.8               |
 | Database       | MongoDB (replica set), Mongoose                         | 8 / 9.12          |
@@ -221,6 +221,9 @@ manager, so navigating pages never causes subscription churn.
 | Client state   | TanStack Query, Zustand, Comlink (Web Worker)           | 5.107 / 5.1 / 4.4 |
 | Testing        | Vitest, Supertest, mongodb-memory-server                | 5.1 / 7.3 / 11.3  |
 | Deployment     | Docker, Render blueprint, MongoDB Atlas M0              | -                 |
+
+¹ Every dependency is on its latest stable release except TypeScript, which stays on 6.0 because
+typescript-eslint 8 does not support the new TypeScript 7 compiler yet.
 
 ## Running tests
 
