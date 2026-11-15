@@ -16,8 +16,9 @@ sunlight and eclipse, and which of 16 real ground stations can see it. Telemetry
 validates, de-duplicates, stores and broadcasts it. Browsers receive only the updates they subscribed to, in a
 compact binary format, and draw them without stalling.
 
-Live demo: _not deployed yet_ (see [Hosting](#bonus-items-in-the-problem-statement) and
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+**Live demo: <https://orbitops-web-ng32.onrender.com>** (sign in with a [demo account](#try-it-in-3-steps), password `orbitops`). It runs on
+Render's free tier, which sleeps after 15 idle minutes: if the page is slow, give it about a minute to wake and the
+fleet a moment to fill in. Hosting details are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## The problem
 
@@ -148,19 +149,19 @@ Mapped to the hackathon brief.
 
 ### Bonus items in the problem statement
 
-| Bonus item in the brief                     | How OrbitOps covers it                                                                                                                | More                                                    |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| High-frequency streams, low latency         | Up to 10 samples per second per satellite, 100 ms batches, bounded queues; end-to-end latency is measured and shown live              | [REALTIME.md](docs/REALTIME.md)                         |
-| Efficient WebSocket payloads                | Deltas of changed fields only, 1-2 character keys, fixed rounding, MessagePack framing, and a 1 Hz nine-field feed for the fleet view | [REALTIME.md](docs/REALTIME.md#delta-encoding)          |
-| Client-side batching, throttling, windowing | Worker posts a batch every 50 ms, per-panel frame-rate caps, ring buffers, downsampling (LTTB) for long ranges                        | [REALTIME.md](docs/REALTIME.md)                         |
-| Independent subscriptions per client        | Each browser subscribes to its own rooms and rate; the viewer and operator windows can watch different satellites                     | [API.md](docs/API.md#socketio)                          |
-| Historical analysis alongside live          | Analytics heatmap, satellite study against a 24-hour baseline, battery-versus-eclipse regression, six-hour replay                     | [ARCHITECTURE.md](docs/ARCHITECTURE.md)                 |
-| Anomaly detection and alerts                | Spacecraft rules plus z-score and rate-of-change detectors, hysteresis and cooldown, annunciators, toasts and optional sound          | [SIMULATION.md](docs/SIMULATION.md#faults-and-commands) |
-| Backpressure, rate limiting, protection     | Token bucket per device, `retryAfterMs` in the ack, bounded queues, slow-consumer downgrade and kick, chaos mode to prove it          | [SECURITY.md](docs/SECURITY.md)                         |
-| Performance measurements and stress tests   | A load-test tool for ingest floods and client swarms, with results written up                                                         | [PERFORMANCE.md](docs/PERFORMANCE.md)                   |
-| Hosting on Render, Railway, Vercel or AWS   | Render blueprint (`render.yaml`) with MongoDB Atlas M0; the simulator runs embedded so one free service is enough. Not deployed yet.  | [DEPLOYMENT.md](docs/DEPLOYMENT.md)                     |
+| Bonus item in the brief                     | How OrbitOps covers it                                                                                                                                         | More                                                    |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| High-frequency streams, low latency         | Up to 10 samples per second per satellite, 100 ms batches, bounded queues; end-to-end latency is measured and shown live                                       | [REALTIME.md](docs/REALTIME.md)                         |
+| Efficient WebSocket payloads                | Deltas of changed fields only, 1-2 character keys, fixed rounding, MessagePack framing, and a 1 Hz nine-field feed for the fleet view                          | [REALTIME.md](docs/REALTIME.md#delta-encoding)          |
+| Client-side batching, throttling, windowing | Worker posts a batch every 50 ms, per-panel frame-rate caps, ring buffers, downsampling (LTTB) for long ranges                                                 | [REALTIME.md](docs/REALTIME.md)                         |
+| Independent subscriptions per client        | Each browser subscribes to its own rooms and rate; the viewer and operator windows can watch different satellites                                              | [API.md](docs/API.md#socketio)                          |
+| Historical analysis alongside live          | Analytics heatmap, satellite study against a 24-hour baseline, battery-versus-eclipse regression, six-hour replay                                              | [ARCHITECTURE.md](docs/ARCHITECTURE.md)                 |
+| Anomaly detection and alerts                | Spacecraft rules plus z-score and rate-of-change detectors, hysteresis and cooldown, annunciators, toasts and optional sound                                   | [SIMULATION.md](docs/SIMULATION.md#faults-and-commands) |
+| Backpressure, rate limiting, protection     | Token bucket per device, `retryAfterMs` in the ack, bounded queues, slow-consumer downgrade and kick, chaos mode to prove it                                   | [SECURITY.md](docs/SECURITY.md)                         |
+| Performance measurements and stress tests   | A load-test tool for ingest floods and client swarms, with results written up                                                                                  | [PERFORMANCE.md](docs/PERFORMANCE.md)                   |
+| Hosting on Render, Railway, Vercel or AWS   | Render blueprint (`render.yaml`) with MongoDB Atlas M0; the simulator runs embedded so one free service is enough. **Deployed:** see the live demo link below. | [DEPLOYMENT.md](docs/DEPLOYMENT.md)                     |
 
-Live demo: _not deployed yet_
+Live demo: <https://orbitops-web-ng32.onrender.com>
 
 ## How it works
 
