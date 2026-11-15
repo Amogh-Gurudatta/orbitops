@@ -1,0 +1,258 @@
+{
+  "scenario": "E",
+  "title": "Rate limiting and backpressure",
+  "description": "Default device limits (3000 ev/s, 6000 burst/10 s). 64 sources at 200 Hz (12,800 ev/s offered) with 50 viewer clients. Phase 1 ignores retryAfterMs (aggressive flood), phase 2 honours it (well-behaved producer).",
+  "startedAt": "2026-11-14T21:59:01.466Z",
+  "serverLimits": "default",
+  "ingest": {
+    "options": {
+      "url": "http://localhost:4020",
+      "sources": 64,
+      "hz": 200,
+      "durationS": 30,
+      "batchMs": 100,
+      "sockets": 4,
+      "honorBackoff": false
+    },
+    "offeredEventsPerSec": 12800,
+    "sentEvents": 382777,
+    "acceptedEvents": 107499,
+    "duplicateEvents": 0,
+    "malformedEvents": 0,
+    "rejectedEvents": 275278,
+    "acksOk": 5366,
+    "acksRejected": 13741,
+    "ackTimeouts": 0,
+    "retryAfterHints": 13741,
+    "retryAfterMaxMs": 776,
+    "droppedLocally": 0,
+    "ackedEventsPerSec": 3583,
+    "ackLatency": {
+      "count": 19107,
+      "meanMs": 0.61,
+      "p50Ms": 0.5,
+      "p95Ms": 1.25,
+      "p99Ms": 2.5,
+      "maxMs": 16.13
+    }
+  },
+  "clients": {
+    "durationS": 30,
+    "connectedAtEnd": 50,
+    "messages": 1784,
+    "messagesPerSec": 59,
+    "deltasPerSec": 2355,
+    "bytesPerSec": 239687,
+    "latency": {
+      "all": {
+        "count": 70673,
+        "meanMs": 150.9,
+        "p50Ms": 159,
+        "p95Ms": 204,
+        "p99Ms": 213,
+        "maxMs": 253
+      },
+      "fleet": {
+        "count": 67200,
+        "meanMs": 151.29,
+        "p50Ms": 159,
+        "p95Ms": 203,
+        "p99Ms": 213,
+        "maxMs": 226
+      },
+      "group": {
+        "count": 3069,
+        "meanMs": 154.27,
+        "p50Ms": 162,
+        "p95Ms": 207,
+        "p99Ms": 237,
+        "maxMs": 253
+      },
+      "sat": {
+        "count": 404,
+        "meanMs": 61.09,
+        "p50Ms": 59,
+        "p95Ms": 100,
+        "p99Ms": 105,
+        "maxMs": 108
+      }
+    },
+    "disconnects": {},
+    "kicks": 0,
+    "workerLoopP99Ms": 20.8,
+    "stalled": {
+      "count": 0,
+      "kicks": 0,
+      "disconnects": {}
+    }
+  },
+  "server": {
+    "samples": 28,
+    "ingestEventsPerSec": {
+      "mean": 3406.8,
+      "max": 8969
+    },
+    "broadcastMsgsPerSec": {
+      "mean": 58.5,
+      "max": 90
+    },
+    "broadcastMBps": {
+      "mean": 0.24,
+      "max": 0.26
+    },
+    "cpuPct": {
+      "mean": 21.1,
+      "max": 28
+    },
+    "systemCpuPct": {
+      "mean": 9.2,
+      "max": 26.2
+    },
+    "rssMb": {
+      "max": 206.3
+    },
+    "eventLoopP99Ms": {
+      "mean": 0.94,
+      "max": 1.51
+    },
+    "queueDepthMax": 64,
+    "slowConsumersMax": 0,
+    "telemetryClientsMax": 50,
+    "accepted": 92409,
+    "rateLimited": 253320,
+    "malformed": 0,
+    "dropped": 0
+  },
+  "connect": {
+    "requested": 50,
+    "connected": 50,
+    "failed": 0,
+    "errors": [],
+    "connectSeconds": 0.4
+  },
+  "extra": {
+    "cooperative": {
+      "ingest": {
+        "options": {
+          "url": "http://localhost:4020",
+          "sources": 64,
+          "hz": 200,
+          "durationS": 30,
+          "batchMs": 100,
+          "sockets": 4,
+          "honorBackoff": true
+        },
+        "offeredEventsPerSec": 12800,
+        "sentEvents": 374133,
+        "acceptedEvents": 105396,
+        "duplicateEvents": 0,
+        "malformedEvents": 0,
+        "rejectedEvents": 268737,
+        "acksOk": 1483,
+        "acksRejected": 2059,
+        "ackTimeouts": 0,
+        "retryAfterHints": 2059,
+        "retryAfterMaxMs": 973,
+        "droppedLocally": 0,
+        "ackedEventsPerSec": 3513,
+        "ackLatency": {
+          "count": 3542,
+          "meanMs": 2.57,
+          "p50Ms": 1.5,
+          "p95Ms": 8.75,
+          "p99Ms": 14.5,
+          "maxMs": 26.61
+        }
+      },
+      "clients": {
+        "durationS": 30,
+        "connectedAtEnd": 50,
+        "messages": 1442,
+        "messagesPerSec": 48,
+        "deltasPerSec": 942,
+        "bytesPerSec": 96669,
+        "latency": {
+          "all": {
+            "count": 28281,
+            "meanMs": 306.42,
+            "p50Ms": 325,
+            "p95Ms": 760,
+            "p99Ms": 838,
+            "maxMs": 856
+          },
+          "fleet": {
+            "count": 26880,
+            "meanMs": 309.56,
+            "p50Ms": 325,
+            "p95Ms": 761,
+            "p99Ms": 844,
+            "maxMs": 856
+          },
+          "group": {
+            "count": 1287,
+            "meanMs": 264,
+            "p50Ms": 319,
+            "p95Ms": 342,
+            "p99Ms": 348,
+            "maxMs": 354
+          },
+          "sat": {
+            "count": 114,
+            "meanMs": 43.25,
+            "p50Ms": 37,
+            "p95Ms": 81,
+            "p99Ms": 100,
+            "maxMs": 104
+          }
+        },
+        "disconnects": {},
+        "kicks": 0,
+        "workerLoopP99Ms": 21.3,
+        "stalled": {
+          "count": 0,
+          "kicks": 0,
+          "disconnects": {}
+        }
+      },
+      "server": {
+        "samples": 28,
+        "ingestEventsPerSec": {
+          "mean": 3338.3,
+          "max": 8957
+        },
+        "broadcastMsgsPerSec": {
+          "mean": 46.6,
+          "max": 75
+        },
+        "broadcastMBps": {
+          "mean": 0.09,
+          "max": 0.25
+        },
+        "cpuPct": {
+          "mean": 11,
+          "max": 24
+        },
+        "systemCpuPct": {
+          "mean": 6.6,
+          "max": 10.8
+        },
+        "rssMb": {
+          "max": 235.2
+        },
+        "eventLoopP99Ms": {
+          "mean": 2.54,
+          "max": 5.45
+        },
+        "queueDepthMax": 37,
+        "slowConsumersMax": 0,
+        "telemetryClientsMax": 50,
+        "accepted": 90599,
+        "rateLimited": 256046,
+        "malformed": 0,
+        "dropped": 0
+      }
+    },
+    "healthzOkAfter": true
+  },
+  "notes": []
+}

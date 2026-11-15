@@ -1,0 +1,219 @@
+{
+  "scenario": "C",
+  "title": "High ingest, max sustainable",
+  "description": "64 sources with rising per-source rate and 100 viewer clients. Ramp until ack p99 > 250 ms, rejections, timeouts or <95% of offered load acknowledged; then re-run the best passing level for the full window.",
+  "startedAt": "2026-11-15T02:18:53.471Z",
+  "serverLimits": "raised",
+  "ingest": {
+    "options": {
+      "url": "http://localhost:4020",
+      "sources": 64,
+      "hz": 1250,
+      "durationS": 30,
+      "batchMs": 100,
+      "sockets": 8,
+      "honorBackoff": true
+    },
+    "offeredEventsPerSec": 80000,
+    "sentEvents": 2392177,
+    "acceptedEvents": 2392177,
+    "duplicateEvents": 0,
+    "malformedEvents": 0,
+    "rejectedEvents": 0,
+    "acksOk": 19094,
+    "acksRejected": 0,
+    "ackTimeouts": 0,
+    "retryAfterHints": 0,
+    "retryAfterMaxMs": 0,
+    "droppedLocally": 0,
+    "ackedEventsPerSec": 79739,
+    "ackLatency": {
+      "count": 19094,
+      "meanMs": 4.91,
+      "p50Ms": 3,
+      "p95Ms": 15.75,
+      "p99Ms": 36.5,
+      "maxMs": 122.7
+    }
+  },
+  "clients": {
+    "durationS": 30,
+    "connectedAtEnd": 100,
+    "messages": 6214,
+    "messagesPerSec": 207,
+    "deltasPerSec": 4942,
+    "bytesPerSec": 519158,
+    "latency": {
+      "all": {
+        "count": 148367,
+        "meanMs": 61.22,
+        "p50Ms": 58,
+        "p95Ms": 103,
+        "p99Ms": 267,
+        "maxMs": 414
+      },
+      "fleet": {
+        "count": 134400,
+        "meanMs": 62.03,
+        "p50Ms": 59,
+        "p95Ms": 104,
+        "p99Ms": 288,
+        "maxMs": 414
+      },
+      "group": {
+        "count": 11033,
+        "meanMs": 55.47,
+        "p50Ms": 57,
+        "p95Ms": 99,
+        "p99Ms": 111,
+        "maxMs": 136
+      },
+      "sat": {
+        "count": 2934,
+        "meanMs": 45.9,
+        "p50Ms": 42,
+        "p95Ms": 97,
+        "p99Ms": 108,
+        "maxMs": 254
+      }
+    },
+    "disconnects": {},
+    "kicks": 0,
+    "workerLoopP99Ms": 21.2,
+    "stalled": {
+      "count": 0,
+      "kicks": 0,
+      "disconnects": {}
+    }
+  },
+  "server": {
+    "samples": 28,
+    "ingestEventsPerSec": {
+      "mean": 79931,
+      "max": 80389
+    },
+    "broadcastMsgsPerSec": {
+      "mean": 208.3,
+      "max": 210.2
+    },
+    "broadcastMBps": {
+      "mean": 0.52,
+      "max": 0.52
+    },
+    "cpuPct": {
+      "mean": 82.7,
+      "max": 91.8
+    },
+    "systemCpuPct": {
+      "mean": 14,
+      "max": 29.8
+    },
+    "rssMb": {
+      "max": 442.4
+    },
+    "eventLoopP99Ms": {
+      "mean": 10.89,
+      "max": 87.78
+    },
+    "queueDepthMax": 64,
+    "slowConsumersMax": 0,
+    "telemetryClientsMax": 100,
+    "accepted": 2160309,
+    "rateLimited": 0,
+    "malformed": 0,
+    "dropped": 0
+  },
+  "connect": {
+    "requested": 100,
+    "connected": 100,
+    "failed": 0,
+    "errors": [],
+    "connectSeconds": 0.5
+  },
+  "extra": {
+    "ramp": [
+      {
+        "offeredEventsPerSec": 1984,
+        "ackedEventsPerSec": 1965,
+        "ackP99Ms": 2.25,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 17.2,
+        "eventLoopP99MsMax": 1.72,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 4992,
+        "ackedEventsPerSec": 4934,
+        "ackP99Ms": 2.25,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 18.3,
+        "eventLoopP99MsMax": 1.06,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 9984,
+        "ackedEventsPerSec": 9856,
+        "ackP99Ms": 2,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 23.8,
+        "eventLoopP99MsMax": 1.08,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 20032,
+        "ackedEventsPerSec": 19782,
+        "ackP99Ms": 2.75,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 35.2,
+        "eventLoopP99MsMax": 1.71,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 40000,
+        "ackedEventsPerSec": 39564,
+        "ackP99Ms": 16.5,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 55.7,
+        "eventLoopP99MsMax": 18.02,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 64000,
+        "ackedEventsPerSec": 63125,
+        "ackP99Ms": 14.25,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 78.8,
+        "eventLoopP99MsMax": 6.79,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 80000,
+        "ackedEventsPerSec": 79025,
+        "ackP99Ms": 140.75,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 92.8,
+        "eventLoopP99MsMax": 97.28,
+        "passed": true
+      },
+      {
+        "offeredEventsPerSec": 100032,
+        "ackedEventsPerSec": 98095,
+        "ackP99Ms": 388.25,
+        "rejectedEvents": 0,
+        "ackTimeouts": 0,
+        "serverCpuPctMean": 100.5,
+        "eventLoopP99MsMax": 287.27,
+        "passed": false
+      }
+    ],
+    "confirmedTargetEventsPerSec": 80000
+  },
+  "notes": []
+}

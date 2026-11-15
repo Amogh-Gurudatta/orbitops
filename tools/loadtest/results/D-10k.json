@@ -1,0 +1,135 @@
+{
+  "scenario": "D",
+  "title": "Viewer capacity",
+  "description": "64 satellites at 10 Hz (640 ev/s) plus 10000 viewer clients (70% fleet, 20% group, 10% sat at 10 Hz).",
+  "startedAt": "2026-11-14T22:01:03.535Z",
+  "serverLimits": "raised",
+  "ingest": {
+    "options": {
+      "url": "http://localhost:4020",
+      "sources": 64,
+      "hz": 10,
+      "durationS": 30,
+      "batchMs": 100,
+      "sockets": 4,
+      "honorBackoff": true
+    },
+    "offeredEventsPerSec": 640,
+    "sentEvents": 19175,
+    "acceptedEvents": 19175,
+    "duplicateEvents": 0,
+    "malformedEvents": 0,
+    "rejectedEvents": 0,
+    "acksOk": 16573,
+    "acksRejected": 0,
+    "ackTimeouts": 0,
+    "retryAfterHints": 0,
+    "retryAfterMaxMs": 0,
+    "droppedLocally": 0,
+    "ackedEventsPerSec": 639,
+    "ackLatency": {
+      "count": 16573,
+      "meanMs": 26.01,
+      "p50Ms": 0.5,
+      "p95Ms": 189.75,
+      "p99Ms": 223.75,
+      "maxMs": 286.76
+    }
+  },
+  "clients": {
+    "durationS": 30.1,
+    "connectedAtEnd": 10000,
+    "messages": 576578,
+    "messagesPerSec": 19184,
+    "deltasPerSec": 467169,
+    "bytesPerSec": 49184750,
+    "latency": {
+      "all": {
+        "count": 14041168,
+        "meanMs": 215.77,
+        "p50Ms": 216,
+        "p95Ms": 320,
+        "p99Ms": 353,
+        "maxMs": 404
+      },
+      "fleet": {
+        "count": 12733000,
+        "meanMs": 224.58,
+        "p50Ms": 224,
+        "p95Ms": 322,
+        "p99Ms": 355,
+        "maxMs": 404
+      },
+      "group": {
+        "count": 1050590,
+        "meanMs": 133.46,
+        "p50Ms": 133,
+        "p95Ms": 203,
+        "p99Ms": 229,
+        "maxMs": 261
+      },
+      "sat": {
+        "count": 257578,
+        "meanMs": 116,
+        "p50Ms": 107,
+        "p95Ms": 246,
+        "p99Ms": 298,
+        "maxMs": 369
+      }
+    },
+    "disconnects": {},
+    "kicks": 0,
+    "workerLoopP99Ms": 21.8,
+    "stalled": {
+      "count": 0,
+      "kicks": 0,
+      "disconnects": {}
+    }
+  },
+  "server": {
+    "samples": 28,
+    "ingestEventsPerSec": {
+      "mean": 639.8,
+      "max": 669.2
+    },
+    "broadcastMsgsPerSec": {
+      "mean": 19333.1,
+      "max": 20000
+    },
+    "broadcastMBps": {
+      "mean": 50.31,
+      "max": 55.79
+    },
+    "cpuPct": {
+      "mean": 56.8,
+      "max": 80.9
+    },
+    "systemCpuPct": {
+      "mean": 14.8,
+      "max": 29.1
+    },
+    "rssMb": {
+      "max": 395.2
+    },
+    "eventLoopP99Ms": {
+      "mean": 65.43,
+      "max": 267.87
+    },
+    "queueDepthMax": 86,
+    "slowConsumersMax": 0,
+    "telemetryClientsMax": 10000,
+    "accepted": 17042,
+    "rateLimited": 0,
+    "malformed": 0,
+    "dropped": 0
+  },
+  "connect": {
+    "requested": 10000,
+    "connected": 10000,
+    "failed": 0,
+    "errors": [],
+    "connectSeconds": 25.9
+  },
+  "extra": {},
+  "notes": []
+}

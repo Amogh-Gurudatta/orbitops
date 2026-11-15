@@ -1,0 +1,8 @@
+{
+  "cpuModel": "AMD Ryzen 7 7735HS with Radeon Graphics",
+  "logicalCores": 16,
+  "ramGiB": 12.7,
+  "node": "v26.13.1",
+  "os": "Linux x64",
+  "kernel": "7.3.3-1-cachyos"
+}

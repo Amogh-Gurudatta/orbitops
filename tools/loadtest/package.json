@@ -1,0 +1,17 @@
+{
+  "name": "@orbitops/loadtest",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Load and stress tests for the OrbitOps server: ingest flood, viewer-client swarm and a scenario runner",
+  "scripts": {
+    "loadtest": "tsx src/run.ts",
+    "ingest": "tsx src/ingestFlood.ts",
+    "swarm": "tsx src/clientSwarm.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@orbitops/shared": "*",
+    "socket.io-client": "^4.8.4"
+  }
+}
